@@ -1,0 +1,117 @@
+workflow:
+  process:
+    name: "Application Processing Workflow"
+    code: "PGR67"
+    description: "A complete workflow for application processing"
+    version: "1.0"
+    sla: 86400
+  states:
+    - code: "INIT"
+      name: "Init"
+      isInitial: true
+      isParallel: false
+      isJoin: false
+      sla: 86400
+    - code: "PENDINGFORASSIGNMENT"
+      name: "Pendingforassignment"
+      isInitial: false
+      isParallel: false
+      isJoin: false
+      sla: 43200
+    - code: "PENDINGATLME"
+      name: "Pendingatlme"
+      isInitial: false
+      isParallel: false
+      isJoin: false
+      sla: 43200
+    - code: "PENDINGFORREASSIGNMENT"
+      name: "Pendingforreassignment"
+      isInitial: false
+      isParallel: false
+      isJoin: false
+      sla: 43200
+    - code: "REJECTED"
+      name: "Rejected"
+      isInitial: false
+      isParallel: false
+      isJoin: false
+      sla: 43200
+    - code: "RESOLVED"
+      name: "Resolved"
+      isInitial: false
+      isParallel: false
+      isJoin: false
+      sla: 43200
+    - code: "CLOSEDAFTERREJECTION"
+      name: "Closedafterrejection"
+      isInitial: false
+      isParallel: false
+      isJoin: false
+      sla: 0
+    - code: "CLOSEDAFTERRESOLUTION"
+      name: "Closedafterresolution"
+      isInitial: false
+      isParallel: false
+      isJoin: false
+      sla: 0
+  actions:
+    - name: "APPLY"
+      currentState: "INIT"
+      nextState: "PENDINGFORASSIGNMENT"
+      attributeValidation:
+        attributes:
+          roles: ["CITIZEN", "CSR"]
+    - name: "ASSIGN"
+      currentState: "PENDINGFORASSIGNMENT"
+      nextState: "PENDINGATLME"
+      attributeValidation:
+        attributes:
+          roles: ["GRO"]
+    - name: "REJECT"
+      currentState: "PENDINGFORASSIGNMENT"
+      nextState: "REJECTED"
+      attributeValidation:
+        attributes:
+          roles: ["GRO"]
+    - name: "REASSIGN"
+      currentState: "PENDINGFORREASSIGNMENT"
+      nextState: "PENDINGATLME"
+      attributeValidation:
+        attributes:
+          roles: ["GRO"]
+    - name: "REASSIGN"
+      currentState: "PENDINGATLME"
+      nextState: "PENDINGFORREASSIGNMENT"
+      attributeValidation:
+        attributes:
+          roles: ["LME"]
+    - name: "RESOLVE"
+      currentState: "PENDINGATLME"
+      nextState: "RESOLVED"
+      attributeValidation:
+        attributes:
+          roles: ["LME"]
+    - name: "REOPEN"
+      currentState: "REJECTED"
+      nextState: "PENDINGFORASSIGNMENT"
+      attributeValidation:
+        attributes:
+          roles: ["CITIZEN", "CSR"]
+    - name: "RATE"
+      currentState: "REJECTED"
+      nextState: "CLOSEDAFTERREJECTION"
+      attributeValidation:
+        attributes:
+          roles: ["CITIZEN", "CSR"]
+    - name: "REOPEN"
+      currentState: "RESOLVED"
+      nextState: "PENDINGFORASSIGNMENT"
+      attributeValidation:
+        attributes:
+          roles: ["CITIZEN", "CSR"]
+    - name: "RATE"
+      currentState: "RESOLVED"
+      nextState: "CLOSEDAFTERRESOLUTION"
+      attributeValidation:
+        attributes:
+          roles: ["CITIZEN", "CSR"]

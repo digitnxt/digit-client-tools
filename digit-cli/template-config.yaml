@@ -1,0 +1,24 @@
+template-id: "email-notification-template"
+version: "1.0.0"
+type: "EMAIL"
+subject: "Welcome to DIGIT Services"
+content: |
+  <html>
+  <body>
+    <h1>Welcome to DIGIT Services!</h1>
+    <p>Dear {{name}},</p>
+    <p>Thank you for registering with DIGIT Services. Your account has been successfully created.</p>
+    <p>Account Details:</p>
+    <ul>
+      <li>Username: {{username}}</li>
+      <li>Email: {{email}}</li>
+      <li>Registration Date: {{date}}</li>
+    </ul>
+    <p>If you have any questions, please contact our support team.</p>
+    <p>Best regards,<br>DIGIT Team</p>
+  </body>
+  </html>
+html: true
+# Optional: Override server URL and JWT token
+# server: "http://localhost:8081"
+# jwt-token: "your-jwt-token-here"

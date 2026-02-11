@@ -1,0 +1,7 @@
+schemaCode: "license-registry"
+data:
+  licenseNumber: "DL-TEST-001"
+  holderName: "John Test User"
+  issueDate: "2024-01-15"
+  expiryDate: "2029-01-14"
+  status: "ACTIVE"

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .invoice-details { margin-bottom: 20px; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .table th { background-color: #f2f2f2; }
+        .total { text-align: right; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>DIGIT Services</h1>
+        <h2>Invoice</h2>
+    </div>
+    
+    <div class="invoice-details">
+        <p><strong>Invoice Number:</strong> {{invoice_number}}</p>
+        <p><strong>Date:</strong> {{invoice_date}}</p>
+        <p><strong>Due Date:</strong> {{due_date}}</p>
+        <p><strong>Customer:</strong> {{customer_name}}</p>
+        <p><strong>Email:</strong> {{customer_email}}</p>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#items}}
+            <tr>
+                <td>{{description}}</td>
+                <td>{{quantity}}</td>
+                <td>${{unit_price}}</td>
+                <td>${{total}}</td>
+            </tr>
+            {{/items}}
+        </tbody>
+    </table>
+    
+    <div class="total">
+        <p>Subtotal: ${{subtotal}}</p>
+        <p>Tax: ${{tax}}</p>
+        <p><strong>Total Amount: ${{total_amount}}</strong></p>
+    </div>
+    
+    <p>Thank you for your business!</p>
+</body>
+</html>

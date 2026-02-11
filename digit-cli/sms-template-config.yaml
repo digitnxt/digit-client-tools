@@ -1,0 +1,9 @@
+template-id: "sms-otp-template"
+version: "1.0.0"
+type: "SMS"
+subject: "OTP Verification"
+content: "Your OTP for DIGIT Services is: {{otp}}. Valid for 5 minutes. Do not share this code with anyone."
+html: false
+# Optional: Override server URL and JWT token
+# server: "http://localhost:8081"
+# jwt-token: "your-jwt-token-here"

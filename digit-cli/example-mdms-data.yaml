@@ -1,0 +1,41 @@
+mdms:
+  - schemaCode: "a.baa"
+    uniqueIdentifier: "Alice3"
+    data:
+      ownerName: "Alice3"
+      RTO: 123
+      car:
+        moduleName: "mod1"
+        carNumber: 456
+        color: "red"
+        engine:
+          Ename: "V8"
+          power: "400hp"
+          average: "15mpg"
+          capacity: "4.0L"
+      contectNumber:
+        - 9876543210
+        - 1234567890
+      address: "Metropolis"
+      state: "Punjab"
+    isActive: true
+  - schemaCode: "a.baa"
+    uniqueIdentifier: "Alice1"
+    data:
+      ownerName: "Alice1"
+      RTO: 123
+      car:
+        moduleName: "mod1"
+        carNumber: 456
+        color: "red"
+        engine:
+          Ename: "V8"
+          power: "400hp"
+          average: "15mpg"
+          capacity: "4.0L"
+      contectNumber:
+        - 9876543210
+        - 1234567890
+      address: "Metropolis"
+      state: "Punjab"
+    isActive: true

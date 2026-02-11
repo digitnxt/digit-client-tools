@@ -1,0 +1,91 @@
+version: 2
+
+project_name: digit-cli
+
+git:
+  tag_sort: -version:refname
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: digit-cli
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    binary: digit
+    main: ./main.go
+    ldflags:
+      - -s -w
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+# brews:
+#   - name: digit-cli
+#     homepage: https://github.com/digitnxt/digit3
+#     description: "DIGIT CLI tool for managing DIGIT platform operations"
+#     license: MIT
+#     repository:
+#       owner: digitnxt
+#       name: homebrew-tap
+#       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+#     folder: Formula
+#     install: |
+#       bin.install "digit-cli"
+#     test: |
+#       system "#{bin}/digit-cli --version"
+
+# nfpms:
+#   - id: packages
+#     package_name: digit-cli
+#     file_name_template: "{{ .ConventionalFileName }}"
+#     vendor: DIGIT
+#     homepage: https://github.com/digitnxt/digit3
+#     maintainer: DIGIT Team <support@digit.org>
+#     description: |-
+#       DIGIT CLI tool for managing DIGIT platform operations.
+#       A command-line interface for interacting with the DIGIT platform.
+#     license: MIT
+#     formats:
+#       - deb
+#       - rpm
+#       - apk
+
+release:
+  github:
+    owner: digitnxt
+    name: digit3
+  draft: false
+  prerelease: auto
+  name_template: "{{.ProjectName}}-v{{.Version}}"

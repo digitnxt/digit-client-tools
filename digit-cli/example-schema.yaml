@@ -1,0 +1,86 @@
+schema:
+  code: "a.baa"
+  description: "ChargeSlabs"
+  isActive: true
+  definition:
+    $schema: "http://json-schema.org/draft-07/schema#"
+    type: "object"
+    title: "Root Schema"
+    required:
+      - "ownerName"
+      - "RTO"
+      - "car"
+    x-unique:
+      - "ownerName"
+    properties:
+      ownerName:
+        type: "string"
+        title: "The ownerName Schema"
+
+      contectNumber:
+        type: "array"
+        title: "The contectNumber Schema"
+        items:
+          type: "number"
+
+      address:
+        type: "string"
+        title: "The address Schema"
+
+      state:
+        type: "string"
+
+      RTO:
+        type: "integer"
+        default: 0
+
+      car:
+        type: "object"
+        default: {}
+        title: "The car Schema"
+        required:
+          - "moduleName"
+          - "carNumber"
+        properties:
+          moduleName:
+            type: "string"
+            default: ""
+            title: "The moduleName Schema"
+
+          color:
+            type: "string"
+            default: ""
+            title: "The color Schema"
+
+          carNumber:
+            type: "integer"
+            default: 0
+            title: "The carNumber Schema"
+
+          engine:
+            type: "object"
+            default: {}
+            title: "The engine Schema"
+            properties:
+              Ename:
+                type: "string"
+                default: ""
+                title: "The Ename Schema"
+
+              capacity:
+                type: "string"
+                default: ""
+                title: "The capacity Schema"
+                examples:
+                  - ""
+
+              power:
+                type: "string"
+                default: ""
+                title: "The power Schema"
+
+              average:
+                type: "string"
+                default: ""
+                title: "The average Schema"
+    x-ref-schema: []

@@ -1,0 +1,9 @@
+template-id: "invoice-template"
+version: "2.0.0"
+type: "EMAIL"
+subject: "Invoice Generated - {{invoice_number}}"
+content-file: "./invoice-template.html"
+html: true
+# Optional: Override server URL and JWT token
+# server: "http://localhost:8081"
+# jwt-token: "your-jwt-token-here"

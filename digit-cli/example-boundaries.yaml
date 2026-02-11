@@ -1,0 +1,26 @@
+boundary:
+  - code: "TEShhhT008j"
+    geometry:
+      type: "Polygon"
+      coordinates:
+        - - [77.0, 28.5]
+          - [77.1, 28.5]
+          - [77.1, 28.6]
+          - [77.0, 28.6]
+          - [77.0, 28.5]
+    additionalDetails: {}
+  - code: "TEShhT009"
+    geometry:
+      type: "Point"
+      coordinates: [77.0, 28.5]
+    additionalDetails: {}
+  - code: "TESTgg010"
+    geometry:
+      type: "Polygon"
+      coordinates:
+        - - [77.2, 28.7]
+          - [77.3, 28.7]
+          - [77.3, 28.8]
+          - [77.2, 28.8]
+          - [77.2, 28.7]
+    additionalDetails: {}
