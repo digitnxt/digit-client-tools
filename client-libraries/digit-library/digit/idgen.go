@@ -61,7 +61,7 @@ func SearchIdGenTemplate(serverURL, jwtToken, clientID, tenantID, templateCode s
 		SetHeader("X-Client-ID", clientID).
 		SetHeader("X-Tenant-ID", tenantID).
 		SetHeader("Authorization", "Bearer "+jwtToken).
-		Get(serverURL + "/idgen/v1/template?templateCode=" + templateCode)
+		Get(serverURL + "/idgen/v3/template?templateCode=" + templateCode)
 
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch ID generation template: %w", err)
@@ -123,7 +123,7 @@ func CreateIdGenTemplate(serverURL, jwtToken, clientID, tenantID, templateCode, 
 		SetHeader("Authorization", "Bearer "+jwtToken).
 		SetHeader("Content-Type", "application/json").
 		SetBody(templateReq).
-		Post(serverURL + "/idgen/v1/template")
+		Post(serverURL + "/idgen/v3/template")
 
 	if err != nil {
 		return "", fmt.Errorf("failed to create ID generation template: %w", err)
@@ -168,7 +168,7 @@ func DeleteIdGenTemplate(serverURL, jwtToken, clientID, tenantID, templateCode, 
 		SetHeader("Authorization", "Bearer "+jwtToken).
 		SetQueryParam("templateCode", templateCode).
 		SetQueryParam("version", version).
-		Delete(serverURL + "/idgen/v1/template")
+		Delete(serverURL + "/idgen/v3/template")
 
 	if err != nil {
 		return "", fmt.Errorf("failed to delete ID generation template: %w", err)

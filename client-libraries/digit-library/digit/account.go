@@ -6,23 +6,27 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// TenantRequest represents the request structure for creating an account
-type TenantRequest struct {
-	Tenant Tenant `json:"tenant"`
+// SignupTenantRequest is the request body for /account/v3/signup
+type SignupTenantRequest struct {
+	Tenant SignupTenant `json:"tenant"`
 }
 
-// Tenant represents the tenant information
-type Tenant struct {
-	Name                 string                 `json:"name"`
-	Email                string                 `json:"email"`
-	IsActive             bool                   `json:"isActive"`
-	AdditionalAttributes map[string]interface{} `json:"additionalAttributes"`
+// SignupTenant holds name, email, and password for v3 signup
+type SignupTenant struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
-// CreateAccount creates a new account in DIGIT services
-// Returns the raw response body as string and any error encountered
-func CreateAccount(serverURL, clientID, name, email string, active bool) (string, error) {
-	// Validate required parameters
+// VerifyAccountRequest is the request body for /account/v3/signup/verify
+type VerifyAccountRequest struct {
+	RequestID string `json:"requestId"`
+	OTP       string `json:"otp"`
+}
+
+// SignupAccount calls /account/v3/signup to initiate account creation.
+// Returns the raw response body (which includes a requestId for OTP verification).
+func SignupAccount(serverURL, name, email, password string) (string, error) {
 	if serverURL == "" {
 		return "", fmt.Errorf("serverURL cannot be empty")
 	}
@@ -32,34 +36,59 @@ func CreateAccount(serverURL, clientID, name, email string, active bool) (string
 	if email == "" {
 		return "", fmt.Errorf("email cannot be empty")
 	}
-	if clientID == "" {
-		return "", fmt.Errorf("clientID cannot be empty")
+	if password == "" {
+		return "", fmt.Errorf("password cannot be empty")
 	}
 
-	// Create the request payload
-	tenantReq := TenantRequest{
-		Tenant: Tenant{
-			Name:                 name,
-			Email:                email,
-			IsActive:             active,
-			AdditionalAttributes: make(map[string]interface{}),
+	req := SignupTenantRequest{
+		Tenant: SignupTenant{
+			Name:     name,
+			Email:    email,
+			Password: password,
 		},
 	}
 
-	// Create HTTP client
 	client := resty.New()
 
-	// Make the API request
 	resp, err := client.R().
 		SetHeader("Content-Type", "application/json").
-		SetHeader("X-Client-Id", clientID).
-		SetBody(tenantReq).
-		Post(serverURL + "/account/v1")
+		SetBody(req).
+		Post(serverURL + "/account/v3/signup")
 
 	if err != nil {
 		return "", fmt.Errorf("failed to make API request: %w", err)
 	}
 
-	// Return the raw response body as string
+	return string(resp.Body()), nil
+}
+
+// VerifyAccount calls /account/v3/signup/verify to confirm the OTP sent after signup.
+func VerifyAccount(serverURL, requestID, otp string) (string, error) {
+	if serverURL == "" {
+		return "", fmt.Errorf("serverURL cannot be empty")
+	}
+	if requestID == "" {
+		return "", fmt.Errorf("requestId cannot be empty")
+	}
+	if otp == "" {
+		return "", fmt.Errorf("otp cannot be empty")
+	}
+
+	req := VerifyAccountRequest{
+		RequestID: requestID,
+		OTP:       otp,
+	}
+
+	client := resty.New()
+
+	resp, err := client.R().
+		SetHeader("Content-Type", "application/json").
+		SetBody(req).
+		Post(serverURL + "/account/v3/signup/verify")
+
+	if err != nil {
+		return "", fmt.Errorf("failed to make API request: %w", err)
+	}
+
 	return string(resp.Body()), nil
 }

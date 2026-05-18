@@ -16,7 +16,7 @@ func CreateProcess(serverURL, jwtToken, tenantID, name, code, description, versi
 		return "", fmt.Errorf("tenant ID is required")
 	}
 
-	url := strings.TrimSuffix(serverURL, "/") + "/workflow/v1/process"
+	url := strings.TrimSuffix(serverURL, "/") + "/workflow/v3/process"
 
 	// Prepare request body
 	requestBody := fmt.Sprintf(`{
@@ -72,7 +72,7 @@ func CreateState(serverURL, jwtToken, tenantID, processID, code, name string, is
 		return "", fmt.Errorf("process ID is required")
 	}
 
-	url := strings.TrimSuffix(serverURL, "/") + fmt.Sprintf("/workflow/v1/process/%s/state", processID)
+	url := strings.TrimSuffix(serverURL, "/") + fmt.Sprintf("/workflow/v3/process/%s/state", processID)
 
 	// Prepare request body
 	requestBody := fmt.Sprintf(`{
@@ -129,7 +129,7 @@ func CreateAction(serverURL, jwtToken, tenantID, stateID, name, nextState string
 		return "", fmt.Errorf("state ID is required")
 	}
 
-	url := strings.TrimSuffix(serverURL, "/") + fmt.Sprintf("/workflow/v1/state/%s/action", stateID)
+	url := strings.TrimSuffix(serverURL, "/") + fmt.Sprintf("/workflow/v3/state/%s/action", stateID)
 
 	// Prepare roles array as JSON
 	rolesJSON := "["
@@ -198,7 +198,7 @@ func SearchProcessDefinition(serverURL, jwtToken, tenantID, processCode string) 
 		return "", fmt.Errorf("process code is required")
 	}
 
-	url := strings.TrimSuffix(serverURL, "/") + "/workflow/v1/process/definition?code=" + processCode
+	url := strings.TrimSuffix(serverURL, "/") + "/workflow/v3/process/definition?code=" + processCode
 
 	// Create request
 	req, err := http.NewRequest("GET", url, nil)
@@ -245,7 +245,7 @@ func DeleteProcess(serverURL, jwtToken, tenantID, code string) (string, error) {
 		return "", fmt.Errorf("process code is required")
 	}
 
-	url := strings.TrimSuffix(serverURL, "/") + "/workflow/v1/process?code=" + code
+	url := strings.TrimSuffix(serverURL, "/") + "/workflow/v3/process?code=" + code
 
 	// Create request
 	req, err := http.NewRequest("DELETE", url, nil)

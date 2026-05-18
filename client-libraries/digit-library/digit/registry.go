@@ -51,7 +51,7 @@ func CreateRegistrySchema(serverURL, jwtToken, tenantID, clientID string, schema
 	}
 
 	// Make HTTP request to registry API
-	url := fmt.Sprintf("%s/registry/v1/schema", serverURL)
+	url := fmt.Sprintf("%s/registry/v3/schema", serverURL)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return "", fmt.Errorf("failed to create HTTP request: %w", err)
@@ -105,7 +105,7 @@ func SearchRegistrySchema(serverURL, jwtToken, tenantID, clientID, schemaCode, v
 	}
 
 	// Build URL with query parameters
-	url := fmt.Sprintf("%s/registry/v1/schema/%s", serverURL, schemaCode)
+	url := fmt.Sprintf("%s/registry/v3/schema/%s", serverURL, schemaCode)
 	if version != "" {
 		url = fmt.Sprintf("%s?version=%s", url, version)
 	}
@@ -163,7 +163,7 @@ func DeleteRegistrySchema(serverURL, jwtToken, tenantID, clientID, schemaCode st
 	}
 
 	// Build URL
-	url := fmt.Sprintf("%s/registry/v1/schema/%s", serverURL, schemaCode)
+	url := fmt.Sprintf("%s/registry/v3/schema/%s", serverURL, schemaCode)
 
 	// Make HTTP request to registry API
 	req, err := http.NewRequest("DELETE", url, nil)
@@ -231,7 +231,7 @@ func CreateRegistryData(serverURL, jwtToken, tenantID, clientID, schemaCode stri
 	}
 
 	// Make HTTP request to registry API
-	url := fmt.Sprintf("%s/registry/v1/data?schemaCode=%s", serverURL, schemaCode)
+	url := fmt.Sprintf("%s/registry/v3/data?schemaCode=%s", serverURL, schemaCode)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return "", fmt.Errorf("failed to create HTTP request: %w", err)
@@ -285,7 +285,7 @@ func SearchRegistryData(serverURL, jwtToken, tenantID, clientID, schemaCode, reg
 	}
 
 	// Build URL with query parameters
-	url := fmt.Sprintf("%s/registry/v1/data/_registry?schemaCode=%s", serverURL, schemaCode)
+	url := fmt.Sprintf("%s/registry/v3/data/_registry?schemaCode=%s", serverURL, schemaCode)
 	if registryID != "" {
 		url = fmt.Sprintf("%s&registryId=%s", url, registryID)
 	}
@@ -346,7 +346,7 @@ func DeleteRegistryData(serverURL, jwtToken, tenantID, clientID, registryID, sch
 	}
 
 	// Build URL with query parameters
-	url := fmt.Sprintf("%s/registry/v1/data/%s?schemaCode=%s", serverURL, registryID, schemaCode)
+	url := fmt.Sprintf("%s/registry/v3/data/%s?schemaCode=%s", serverURL, registryID, schemaCode)
 
 	// Make HTTP request to registry API
 	req, err := http.NewRequest("DELETE", url, nil)
