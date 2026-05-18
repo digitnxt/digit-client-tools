@@ -1,4 +1,4 @@
-module github.com/digitnxt/digit3/code/libraries/digit-library
+module github.com/digitnxt/digit-client-tools/client-libraries/digit-library
 
 go 1.21
 
