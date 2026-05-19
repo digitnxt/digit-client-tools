@@ -1,0 +1,61 @@
+mdms:
+  - schemaCode: "RAINMAKER_PGR_ServiceDefs"
+    uniqueIdentifier: "WATER_SUPPLY"
+    data:
+      serviceCode: "WATER_SUPPLY"
+      name: "Water Supply Issue"
+      keywords: "water, supply, shortage, quality"
+      department: "Water Department"
+      slaHours: 72
+      order: 1
+      active: true
+      menuPath: "Complaints.Water"
+    isActive: true
+  - schemaCode: "RAINMAKER_PGR_ServiceDefs"
+    uniqueIdentifier: "ROAD_REPAIR"
+    data:
+      serviceCode: "ROAD_REPAIR"
+      name: "Road Repair Request"
+      keywords: "road, repair, pothole, maintenance"
+      department: "Public Works Department"
+      slaHours: 168
+      order: 2
+      active: true
+      menuPath: "Complaints.Infrastructure"
+    isActive: true
+  - schemaCode: "RAINMAKER_PGR_ServiceDefs"
+    uniqueIdentifier: "GARBAGE_COLLECTION"
+    data:
+      serviceCode: "GARBAGE_COLLECTION"
+      name: "Garbage Collection Issue"
+      keywords: "garbage, waste, collection, sanitation"
+      department: "Sanitation Department"
+      slaHours: 24
+      order: 3
+      active: true
+      menuPath: "Complaints.Sanitation"
+    isActive: true
+  - schemaCode: "RAINMAKER_PGR_ServiceDefs"
+    uniqueIdentifier: "STREET_LIGHT"
+    data:
+      serviceCode: "STREET_LIGHT"
+      name: "Street Light Complaint"
+      keywords: "street, light, electricity, maintenance"
+      department: "Electrical Department"
+      slaHours: 48
+      order: 4
+      active: true
+      menuPath: "Complaints.Electrical"
+    isActive: true
+  - schemaCode: "RAINMAKER_PGR_ServiceDefs"
+    uniqueIdentifier: "DRAINAGE_ISSUE"
+    data:
+      serviceCode: "DRAINAGE_ISSUE"
+      name: "Drainage and Sewerage"
+      keywords: "drainage, sewer, blockage, overflow"
+      department: "Water Department"
+      slaHours: 96
+      order: 5
+      active: true
+      menuPath: "Complaints.Water"
+    isActive: true

@@ -1,0 +1,9 @@
+boundaryHierarchy:
+  hierarchyType: "state-district-hierarchy"
+  boundaryHierarchy:
+    - boundaryType: "state"
+      parentBoundaryType: null
+      active: true
+    - boundaryType: "district"
+      parentBoundaryType: "state"
+      active: true

@@ -1,0 +1,32 @@
+schemaCode: "test-license-registry"
+definition:
+  $schema: "https://json-schema.org/draft/2020-12/schema"
+  type: "object"
+  additionalProperties: false
+  properties:
+    licenseNumber:
+      type: "string"
+    holderName:
+      type: "string"
+    issueDate:
+      type: "string"
+      format: "date"
+    expiryDate:
+      type: "string"
+      format: "date"
+    status:
+      type: "string"
+      enum: ["ACTIVE", "SUSPENDED", "REVOKED"]
+    category:
+      type: "string"
+      enum: ["DRIVING", "BUSINESS", "PROFESSIONAL"]
+  required: ["licenseNumber", "holderName", "issueDate", "status"]
+  x-indexes:
+    - name: "idx_license_status"
+      fieldPath: "status"
+      method: "btree"
+    - fieldPath: "holderName"
+      method: "gin"
+    - name: "idx_license_category"
+      fieldPath: "category"
+      method: "btree"
