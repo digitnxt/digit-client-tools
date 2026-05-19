@@ -4,6 +4,7 @@ project_name: digit-cli
 
 git:
   tag_sort: -version:refname
+  tag_prefix: "digit-cli-"
 
 before:
   hooks:
