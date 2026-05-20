@@ -75,10 +75,14 @@ Example:
 			}
 		}
 
-		// Extract tenant ID from JWT token
+		// Extract tenant ID and user ID from JWT token
 		tenantID, err := jwt.ExtractTenantID(jwtToken)
 		if err != nil {
 			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
+		}
+		userID, err := jwt.ExtractClientID(jwtToken)
+		if err != nil {
+			return fmt.Errorf("failed to extract user ID from JWT token: %w", err)
 		}
 
 		// Validate required parameters
@@ -108,7 +112,7 @@ Example:
 		maxSize := parseSizeFlag(maxSizeStr)
 
 		// Create the document category
-		responseBody, err := digit.CreateDocumentCategory(serverURL, jwtToken, tenantID, categoryType, code, allowedFormats, minSize, maxSize, isSensitive, isActive, description)
+		responseBody, err := digit.CreateDocumentCategory(serverURL, jwtToken, tenantID, userID, categoryType, code, allowedFormats, minSize, maxSize, isSensitive, isActive, description)
 		if err != nil {
 			return fmt.Errorf("failed to create document category: %w", err)
 		}
@@ -160,8 +164,12 @@ Example:
 		if err != nil {
 			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
 		}
+		userID, err := jwt.ExtractClientID(jwtToken)
+		if err != nil {
+			return fmt.Errorf("failed to extract user ID from JWT token: %w", err)
+		}
 
-		responseBody, err := digit.DeleteDocumentCategory(serverURL, jwtToken, tenantID, code)
+		responseBody, err := digit.DeleteDocumentCategory(serverURL, jwtToken, tenantID, userID, code)
 		if err != nil {
 			return fmt.Errorf("failed to delete document category: %w", err)
 		}

@@ -54,7 +54,7 @@ func CreateRbacRule(serverURL, jwtToken, tenantID string, rule RbacRulePayload) 
 		return "", fmt.Errorf("tenant ID is required")
 	}
 
-	url := strings.TrimSuffix(serverURL, "/") + "/access/rbac/rules/"
+	url := strings.TrimSuffix(serverURL, "/") + "/access/v3/rbac/rules/"
 
 	body, err := json.Marshal(rule)
 	if err != nil {
@@ -101,7 +101,7 @@ func ListRbacRules(serverURL, jwtToken, tenantID, roleName string, page, size in
 		return "", fmt.Errorf("tenant ID is required")
 	}
 
-	url := fmt.Sprintf("%s/access/rbac/rules/?page=%d&size=%d",
+	url := fmt.Sprintf("%s/access/v3/rbac/rules/?page=%d&size=%d",
 		strings.TrimSuffix(serverURL, "/"), page, size)
 
 	if roleName != "" {
@@ -144,7 +144,7 @@ func GetRbacRule(serverURL, jwtToken, tenantID, ruleID string) (string, error) {
 		return "", fmt.Errorf("rule ID is required")
 	}
 
-	url := fmt.Sprintf("%s/access/rbac/rules/%s/",
+	url := fmt.Sprintf("%s/access/v3/rbac/rules/%s/",
 		strings.TrimSuffix(serverURL, "/"), ruleID)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -175,7 +175,7 @@ func DeleteRbacRule(serverURL, jwtToken, tenantID, ruleID string) error {
 		return fmt.Errorf("rule ID is required")
 	}
 
-	url := fmt.Sprintf("%s/access/rbac/rules/%s/",
+	url := fmt.Sprintf("%s/access/v3/rbac/rules/%s/",
 		strings.TrimSuffix(serverURL, "/"), ruleID)
 
 	req, err := http.NewRequest("DELETE", url, nil)

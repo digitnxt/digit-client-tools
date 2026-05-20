@@ -17,7 +17,7 @@ func boundaryClient(serverURL, jwtToken, tenantID string) *resty.Request {
 // CreateBoundaries creates boundaries via POST /boundary/v3/boundaries
 func CreateBoundaries(serverURL, jwtToken, tenantID, clientID string, boundaryData []map[string]interface{}) (string, error) {
 	resp, err := boundaryClient(serverURL, jwtToken, tenantID).
-		SetHeader("X-Client-Id", clientID).
+		SetHeader("X-User-ID", clientID).
 		SetBody(map[string]interface{}{"boundary": boundaryData}).
 		Post(serverURL + "/boundary/v3/boundaries")
 	if err != nil {
@@ -29,7 +29,7 @@ func CreateBoundaries(serverURL, jwtToken, tenantID, clientID string, boundaryDa
 // CreateBoundaryHierarchy creates a boundary hierarchy via POST /boundary/v3/hierarchy
 func CreateBoundaryHierarchy(serverURL, jwtToken, tenantID, clientID string, boundaryHierarchy map[string]interface{}) (string, error) {
 	resp, err := boundaryClient(serverURL, jwtToken, tenantID).
-		SetHeader("X-Client-Id", clientID).
+		SetHeader("X-User-ID", clientID).
 		SetBody(map[string]interface{}{"hierarchy": boundaryHierarchy}).
 		Post(serverURL + "/boundary/v3/hierarchy")
 	if err != nil {
@@ -41,7 +41,7 @@ func CreateBoundaryHierarchy(serverURL, jwtToken, tenantID, clientID string, bou
 // SearchBoundaryHierarchy searches boundary hierarchy via GET /boundary/v3/hierarchy?hierarchyType=...
 func SearchBoundaryHierarchy(serverURL, jwtToken, tenantID, clientID, hierarchyType string) (string, error) {
 	resp, err := boundaryClient(serverURL, jwtToken, tenantID).
-		SetHeader("X-Client-Id", clientID).
+		SetHeader("X-User-ID", clientID).
 		SetQueryParam("hierarchyType", hierarchyType).
 		Get(serverURL + "/boundary/v3/hierarchy")
 	if err != nil {
@@ -53,7 +53,7 @@ func SearchBoundaryHierarchy(serverURL, jwtToken, tenantID, clientID, hierarchyT
 // CreateBoundaryRelationships creates boundary relationships via POST /boundary/v3/relationship
 func CreateBoundaryRelationships(serverURL, jwtToken, tenantID, clientID string, boundaryRelationship map[string]interface{}) (string, error) {
 	resp, err := boundaryClient(serverURL, jwtToken, tenantID).
-		SetHeader("X-Client-Id", clientID).
+		SetHeader("X-User-ID", clientID).
 		SetBody(map[string]interface{}{"relationship": boundaryRelationship}).
 		Post(serverURL + "/boundary/v3/relationship")
 	if err != nil {
@@ -65,7 +65,7 @@ func CreateBoundaryRelationships(serverURL, jwtToken, tenantID, clientID string,
 // SearchBoundaryRelationships searches boundary relationships via GET /boundary/v3/relationship
 func SearchBoundaryRelationships(serverURL, jwtToken, tenantID, clientID, hierarchyType, boundaryType, codes string, includeChildren bool) (string, error) {
 	req := boundaryClient(serverURL, jwtToken, tenantID).
-		SetHeader("X-Client-Id", clientID)
+		SetHeader("X-User-ID", clientID)
 
 	if hierarchyType != "" {
 		req.SetQueryParam("hierarchyType", hierarchyType)

@@ -60,7 +60,7 @@ func CreateRegistrySchema(serverURL, jwtToken, tenantID, clientID string, schema
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Tenant-ID", tenantID)
-	req.Header.Set("X-Client-ID", clientID)
+	req.Header.Set("X-User-ID", clientID)
 	if jwtToken != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
 	}
@@ -118,7 +118,7 @@ func SearchRegistrySchema(serverURL, jwtToken, tenantID, clientID, schemaCode, v
 
 	// Set headers
 	req.Header.Set("X-Tenant-ID", tenantID)
-	req.Header.Set("X-Client-ID", clientID)
+	req.Header.Set("X-User-ID", clientID)
 	if jwtToken != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
 	}
@@ -173,7 +173,7 @@ func DeleteRegistrySchema(serverURL, jwtToken, tenantID, clientID, schemaCode st
 
 	// Set headers
 	req.Header.Set("X-Tenant-ID", tenantID)
-	req.Header.Set("X-Client-ID", clientID)
+	req.Header.Set("X-User-ID", clientID)
 	if jwtToken != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
 	}
@@ -240,7 +240,7 @@ func CreateRegistryData(serverURL, jwtToken, tenantID, clientID, schemaCode stri
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Tenant-ID", tenantID)
-	req.Header.Set("X-Client-ID", clientID)
+	req.Header.Set("X-User-ID", clientID)
 	if jwtToken != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
 	}
@@ -298,7 +298,7 @@ func SearchRegistryData(serverURL, jwtToken, tenantID, clientID, schemaCode, reg
 
 	// Set headers
 	req.Header.Set("X-Tenant-ID", tenantID)
-	req.Header.Set("X-Client-ID", clientID)
+	req.Header.Set("X-User-ID", clientID)
 	if jwtToken != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
 	}
@@ -356,7 +356,7 @@ func DeleteRegistryData(serverURL, jwtToken, tenantID, clientID, registryID, sch
 
 	// Set headers
 	req.Header.Set("X-Tenant-ID", tenantID)
-	req.Header.Set("X-Client-ID", clientID)
+	req.Header.Set("X-User-ID", clientID)
 	if jwtToken != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", jwtToken))
 	}

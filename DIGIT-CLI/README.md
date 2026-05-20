@@ -1,58 +1,65 @@
 # DIGIT CLI
 
-A comprehensive command-line interface for interacting with DIGIT platform services. This CLI tool provides commands for account management, user creation, role assignment, workflow management, template creation, MDMS operations, and more.
+A comprehensive command-line interface for interacting with DIGIT platform services. This CLI tool provides commands for account management, user creation, role assignment, workflow management, template creation, MDMS operations, access control, boundary management, and more.
 
 ## Features
 
-- **Account Management**: Create and manage DIGIT service accounts
+- **Account Management**: Create, search, and delete tenant accounts via admin API
 - **User Management**: Complete Keycloak user lifecycle (create, update, delete, search, password reset)
 - **Role Management**: Create roles and assign them to users in Keycloak
-- **Template Management**: Create and search notification templates (EMAIL, SMS)
-- **Workflow Management**: Create processes, states, actions, and complete workflows
-- **ID Generation**: Create and manage ID generation templates
-- **Document Categories**: Create and manage filestore document categories
-- **MDMS Operations**: Create schemas and manage master data
+- **Access Control**: Full RBAC/JBAC rule management (create, list, get, delete)
+- **Template Management**: Create, search, and delete notification templates (EMAIL, SMS)
+- **Workflow Management**: Create complete workflows from YAML, search, and delete process definitions
+- **ID Generation**: Create, search, and delete ID generation templates
+- **Document Categories**: Create and delete filestore document categories
+- **MDMS Operations**: Create schemas, manage master data
+- **Boundary Management**: Create and search boundary hierarchies and relationships
+- **Registry Management**: Create, search, and delete registry schemas
 - **Configuration Management**: Multi-context configuration with authentication
 - **Cross-Platform**: Available for Linux, macOS, and Windows
 
 ## Installation
 
-Download the latest release for your platform from the [releases page](https://github.com/digitnxt/digit3/releases):
+Download the latest release for your platform from the [releases page](https://github.com/digitnxt/digit-client-tools/releases):
 
 **Linux (x86_64):**
 ```bash
-# Download and install
-curl -L -o digit-cli.tar.gz "https://github.com/digitnxt/digit3/releases/latest/download/digit-cli_Linux_x86_64.tar.gz"
+curl -L -o digit-cli.tar.gz "https://github.com/digitnxt/digit-client-tools/releases/latest/download/digit-cli_Linux_x86_64.tar.gz"
 tar -xzf digit-cli.tar.gz
 sudo mv digit /usr/local/bin/
-chmod +x /usr/local/bin/digit
+digit --help
+```
 
-# Verify installation
+**Linux (arm64):**
+```bash
+curl -L -o digit-cli.tar.gz "https://github.com/digitnxt/digit-client-tools/releases/latest/download/digit-cli_Linux_arm64.tar.gz"
+tar -xzf digit-cli.tar.gz
+sudo mv digit /usr/local/bin/
 digit --help
 ```
 
 **macOS (Intel):**
 ```bash
-# Download and install
-curl -L -o digit-cli.tar.gz "https://github.com/digitnxt/digit3/releases/latest/download/digit-cli_Darwin_x86_64.tar.gz"
+curl -L -o digit-cli.tar.gz "https://github.com/digitnxt/digit-client-tools/releases/latest/download/digit-cli_Darwin_x86_64.tar.gz"
 tar -xzf digit-cli.tar.gz
 sudo mv digit /usr/local/bin/
-chmod +x /usr/local/bin/digit
+digit --help
 ```
 
 **macOS (Apple Silicon):**
 ```bash
-# Download and install
-curl -L -o digit-cli.tar.gz "https://github.com/digitnxt/digit3/releases/latest/download/digit-cli_Darwin_arm64.tar.gz"
+curl -L -o digit-cli.tar.gz "https://github.com/digitnxt/digit-client-tools/releases/latest/download/digit-cli_Darwin_arm64.tar.gz"
 tar -xzf digit-cli.tar.gz
 sudo mv digit /usr/local/bin/
-chmod +x /usr/local/bin/digit
+digit --help
 ```
 
-**Windows:**
+**Windows (x86_64):**
 ```powershell
-# Download from releases page and extract digit.exe
-# Add the directory containing digit.exe to your PATH
+Invoke-WebRequest -Uri "https://github.com/digitnxt/digit-client-tools/releases/latest/download/digit-cli_Windows_x86_64.zip" -OutFile digit-cli.zip
+Expand-Archive digit-cli.zip -DestinationPath digit-cli
+# Add the digit-cli folder to your PATH, then verify:
+digit --help
 ```
 
 ## Usage
@@ -160,10 +167,7 @@ Authenticate with Keycloak and set configuration using YAML file or command-line
 
 **Examples:**
 ```bash
-# Using YAML file
 digit config set --file examples/sample-digit-config.yaml
-
-# Using command-line flags
 digit config set --server https://digit-lts.digit.org --account CLI --client-id admin-cli --client-secret mysecret --username user@example.com --password mypassword
 ```
 
@@ -171,32 +175,22 @@ digit config set --server https://digit-lts.digit.org --account CLI --client-id 
 
 Show current configuration.
 
-**Examples:**
 ```bash
 digit config show
 ```
 
 #### `digit config get-contexts`
 
-List available contexts from configuration file.
+List available contexts from a configuration file.
 
-**Flags:**
-- `--file`: Path to configuration YAML file (required)
-
-**Examples:**
 ```bash
 digit config get-contexts --file examples/sample-digit-config.yaml
 ```
 
 #### `digit config use-context`
 
-Switch to different context.
+Switch to a different context.
 
-**Flags:**
-- `--file`: Path to configuration YAML file (required)
-- Context name as argument
-
-**Examples:**
 ```bash
 digit config use-context <context-name> --file examples/sample-digit-config.yaml
 ```
@@ -205,130 +199,101 @@ digit config use-context <context-name> --file examples/sample-digit-config.yaml
 
 ### `digit create-account`
 
-Create a new account in DIGIT services.
+Create a new tenant account via the admin API.
 
 **Flags:**
-- `--name`: Name of the tenant (required)
-- `--email`: Email of the tenant (required)
-- `--active`: Whether the tenant is active (default: true)
-- `--client-id`: Client ID for the request (default: "test-client")
+- `--name`: Tenant name (required)
+- `--email`: Tenant email (required)
+- `--password`: Password (optional — server generates one if omitted)
+- `--phone`: Phone number (optional)
+- `--address`: Address (optional)
+- `--city`: City (optional)
+- `--state`: State (optional)
+- `--pincode`: Pincode (optional)
 - `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Basic account creation
-digit create-account --name kongnew1 --email test@example.com
+digit create-account --name "Nairobi City" --email admin@nairobi.go.ke --server https://digit-lts.digit.org
+digit create-account --name "Nairobi City" --email admin@nairobi.go.ke --password Changeme1 --server https://digit-lts.digit.org
+digit create-account --name "Nairobi City" --email admin@nairobi.go.ke --phone "+254202229000" --city Nairobi --server https://digit-lts.digit.org
+```
 
-# Create inactive account
-digit create-account --name kongnew1 --email test@example.com --active=false
+---
 
-# Use custom client ID
-digit create-account --name kongnew1 --email test@example.com --client-id custom-client
+### `digit search-account`
 
-# Override server URL for single request
-digit create-account --name kongnew1 --email test@example.com --server http://different-server:8094
+Search or list tenant accounts with optional filters.
+
+**Flags:**
+- `--name`: Filter by tenant name (partial match)
+- `--email`: Filter by tenant email (partial match)
+- `--page`: Page number, 1-indexed (default: 1)
+- `--size`: Results per page (default: 20)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit search-account --server https://digit-lts.digit.org
+digit search-account --name "Nairobi" --server https://digit-lts.digit.org
+digit search-account --email admin@nairobi.go.ke --server https://digit-lts.digit.org
+digit search-account --page 2 --size 10 --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit delete-account`
+
+Permanently delete a tenant account by ID.
+
+**Flags:**
+- `--id`: Tenant account ID to delete (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit delete-account --id 3fa85f64-5717-4562-b3fc-2c963f66afa6 --server https://digit-lts.digit.org
 ```
 
 ---
 
 ### `digit create-user`
 
-Create a new user in Keycloak with the specified username, password, email, and realm.
+Create a new user in Keycloak.
 
 **Flags:**
-- `--username`: Username for the new user (required)
-- `--password`: Password for the new user (required)
-- `--email`: Email for the new user (required)
-- `--account`: Keycloak account name (required)
+- `--username`: Username (required)
+- `--password`: Password (required)
+- `--email`: Email (required)
+- `--account`: Keycloak account/realm name (required)
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Basic user creation
 digit create-user --username johndoe --password mypassword --email john@example.com --account master
-
-# With custom server
 digit create-user --username johndoe --password mypassword --email john@example.com --account myrealm --server https://keycloak.example.com
-
-# With JWT token
-digit create-user --username johndoe --password mypassword --email john@example.com --account master --jwt-token <token>
-```
-
----
-
-### `digit reset-password`
-
-Reset a user's password in Keycloak with the specified username and new password.
-
-**Flags:**
-- `--username`: Username of the user (required)
-- `--new-password`: New password for the user (required)
-- `--account`: Keycloak account name (required)
-- `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
-
-**Examples:**
-```bash
-# Basic password reset
-digit reset-password --username johndoe --new-password newpassword123 --account master
-
-# With custom server
-digit reset-password --username johndoe --new-password newpassword123 --account myrealm --server https://keycloak.example.com
-
-# With JWT token
-digit reset-password --username johndoe --new-password newpassword123 --account master --jwt-token <token>
-```
-
----
-
-### `digit delete-user`
-
-Delete a user from Keycloak.
-
-**Flags:**
-- `--username`: Username of the user to delete (required)
-- `--account`: Keycloak account name (required)
-- `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
-
-**Examples:**
-```bash
-# Basic user deletion
-digit delete-user --username johndoe --account master
-
-# With custom server
-digit delete-user --username johndoe --account myrealm --server https://keycloak.example.com
-
-# With JWT token
-digit delete-user --username johndoe --account master --jwt-token <token>
 ```
 
 ---
 
 ### `digit search-user`
 
-Search for users in Keycloak or list all users.
+Search for users in Keycloak.
 
 **Flags:**
 - `--account`: Keycloak account name (required)
-- `--username`: Username to search for (optional, lists all if not provided)
+- `--username`: Username to search (optional — lists all if omitted)
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# List all users in account
-digit search-user --account master
-
-# Search for specific user
-digit search-user --username johndoe --account master
-
-# With custom server
-digit search-user --username johndoe --account myrealm --server https://keycloak.example.com
-
-# With JWT token
-digit search-user --account master --jwt-token <token>
+digit search-user --account master --server https://digit-lts.digit.org
+digit search-user --username johndoe --account master --server https://digit-lts.digit.org
 ```
 
 ---
@@ -345,24 +310,47 @@ Update a user's information in Keycloak.
 - `--last-name`: New last name
 - `--enabled`: Enable/disable user (true/false)
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Update user email
-digit update-user --username johndoe --email newemail@example.com --account master
+digit update-user --username johndoe --email newemail@example.com --account master --server https://digit-lts.digit.org
+digit update-user --username johndoe --first-name John --last-name Doe --enabled=false --account master --server https://digit-lts.digit.org
+```
 
-# Update user names
-digit update-user --username johndoe --first-name John --last-name Doe --account master
+---
 
-# Enable/disable user
-digit update-user --username johndoe --enabled=false --account master
+### `digit reset-password`
 
-# Update multiple fields
-digit update-user --username johndoe --email new@example.com --first-name John --enabled=true --account master
+Reset a user's password in Keycloak.
 
-# With custom server and JWT token
-digit update-user --username johndoe --email new@example.com --account master --server https://keycloak.example.com --jwt-token <token>
+**Flags:**
+- `--username`: Username (required)
+- `--new-password`: New password (required)
+- `--account`: Keycloak account name (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit reset-password --username johndoe --new-password newpassword123 --account master --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit delete-user`
+
+Delete a user from Keycloak.
+
+**Flags:**
+- `--username`: Username to delete (required)
+- `--account`: Keycloak account name (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit delete-user --username johndoe --account master --server https://digit-lts.digit.org
 ```
 
 ---
@@ -372,22 +360,16 @@ digit update-user --username johndoe --email new@example.com --account master --
 Create a new role in Keycloak.
 
 **Flags:**
-- `--role-name`: Name of the role to create (required)
+- `--role-name`: Role name (required)
 - `--account`: Keycloak account name (required)
-- `--description`: Description of the role (optional)
+- `--description`: Description (optional)
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Create basic role
-digit create-role --role-name "ADMIN" --account master
-
-# Create role with description
-digit create-role --role-name "MANAGER" --description "Manager role with elevated permissions" --account master
-
-# With custom server and JWT token
-digit create-role --role-name "VIEWER" --account master --server https://keycloak.example.com --jwt-token <token>
+digit create-role --role-name "ADMIN" --account master --server https://digit-lts.digit.org
+digit create-role --role-name "MANAGER" --description "Manager role" --account master --server https://digit-lts.digit.org
 ```
 
 ---
@@ -397,175 +379,267 @@ digit create-role --role-name "VIEWER" --account master --server https://keycloa
 Assign a role to a user in Keycloak.
 
 **Flags:**
-- `--username`: Username to assign role to (required)
-- `--role-name`: Name of the role to assign (required)
+- `--username`: Username (required)
+- `--role-name`: Role name (required)
 - `--account`: Keycloak account name (required)
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Assign role to user
-digit assign-role --username johndoe --role-name "ADMIN" --account master
+digit assign-role --username johndoe --role-name "ADMIN" --account master --server https://digit-lts.digit.org
+```
 
-# With custom server and JWT token
-digit assign-role --username johndoe --role-name "MANAGER" --account master --server https://keycloak.example.com --jwt-token <token>
+---
+
+### `digit create-rbac-rule`
+
+Create RBAC/JBAC access control rules via flags or YAML file.
+
+**Flags (flag mode):**
+- `--roles`: Comma-separated role names (required)
+- `--method`: HTTP method (GET, POST, PUT, DELETE, PATCH)
+- `--path`: API path to protect (required)
+- `--effect`: ALLOW or DENY (default: ALLOW)
+- `--priority`: Rule priority (default: 100)
+- `--description`: Rule description
+- `--crud`: Create rules for all CRUD methods at once
+- `--constraint`: Constraint in `type:key:op:value` format (repeatable)
+- `--file`: YAML file with multiple rules
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**YAML file structure:**
+```yaml
+rules:
+  - roleNames: ["SUPERUSER"]
+    httpMethod: "GET"
+    path: "/workflow/v3/process/definition"
+    description: "Allow SUPERUSER to read workflow definitions"
+  - roleNames: ["SUPERUSER", "ADMIN"]
+    path: "/accounts/v3/tenants"
+    crud: true
+```
+
+**Examples:**
+```bash
+# Single rule via flags
+digit create-rbac-rule --roles SUPERUSER --method POST --path /workflow/v3/process/definition --server https://digit-lts.digit.org
+
+# All CRUD methods for a path
+digit create-rbac-rule --roles SUPERUSER --path /accounts/v3/tenants --crud --server https://digit-lts.digit.org
+
+# With a JBAC constraint
+digit create-rbac-rule --roles CITIZEN --method GET --path /filestore/v3/files --constraint "boundary:tenantId:EQ:KA.BLR" --server https://digit-lts.digit.org
+
+# From YAML file
+digit create-rbac-rule --file rbac-rules.yaml --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit list-rbac-rules`
+
+List RBAC access control rules for your tenant.
+
+**Flags:**
+- `--role`: Filter rules by role name (optional)
+- `--page`: Page number (default: 0)
+- `--size`: Page size (default: 50)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit list-rbac-rules --server https://digit-lts.digit.org
+digit list-rbac-rules --role SUPERUSER --server https://digit-lts.digit.org
+digit list-rbac-rules --page 0 --size 20 --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit get-rbac-rule`
+
+Get the full details of a single RBAC rule by ID.
+
+**Flags:**
+- `--id`: Rule UUID (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit get-rbac-rule --id 550e8400-e29b-41d4-a716-446655440000 --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit delete-rbac-rule`
+
+Delete a single RBAC rule by ID.
+
+**Flags:**
+- `--id`: Rule UUID (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit delete-rbac-rule --id 550e8400-e29b-41d4-a716-446655440000 --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit delete-all-rbac-rules`
+
+Delete all RBAC rules for your tenant (destructive — use with caution).
+
+**Flags:**
+- `--role`: Only delete rules for this role (optional)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit delete-all-rbac-rules --server https://digit-lts.digit.org
+digit delete-all-rbac-rules --role SUPERUSER --server https://digit-lts.digit.org
 ```
 
 ---
 
 ### `digit create-idgen-template`
 
-Create a new ID generation template for generating unique IDs.
+Create a new ID generation template.
 
 **Flags:**
-- `--file`: Path to YAML file containing ID generation template configuration
-- `--default`: Use default ID generation template configuration (requires --template-code)
-- `--template-code`: Template code for the ID generation template (required)
-- `--template`: Template pattern for ID generation (required if not using --default)
-- `--scope`: Scope for sequence generation (optional, default: daily)
-- `--start`: Starting number for sequence (optional, default: 1)
-- `--padding-length`: Padding length for sequence numbers (optional, default: 4)
-- `--padding-char`: Padding character for sequence numbers (optional, default: "0")
-- `--random-length`: Length of random string (optional, default: 2)
-- `--random-charset`: Character set for random string (optional, default: "A-Z0-9")
+- `--template-code`: Template code (required)
+- `--template`: Template pattern e.g. `{ORG}-{DATE:yyyyMMdd}-{SEQ}-{RAND}` (required unless `--default`)
+- `--default`: Use built-in default configuration (requires `--template-code`)
+- `--scope`: Sequence scope — daily, monthly, yearly, global (default: daily)
+- `--start`: Starting number for sequence (default: 1)
+- `--padding-length`: Padding length for sequence (default: 4)
+- `--padding-char`: Padding character (default: "0")
+- `--random-length`: Length of random string (default: 2)
+- `--random-charset`: Character set for random string (default: "A-Z0-9")
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Basic ID generation template
-digit create-idgen-template --template-code orgId --template "{ORG}-{DATE:yyyyMMdd}-{SEQ}-{RAND}"
-
-# Using default configuration with custom template code
-digit create-idgen-template --default --template-code "my-custom-template"
-
-# With custom sequence configuration
-digit create-idgen-template --template-code userId --template "USER-{SEQ}-{RAND}" --scope global --start 100 --padding-length 6
-
-# With custom random configuration
-digit create-idgen-template --template-code docId --template "DOC-{SEQ}-{RAND}" --random-length 4 --random-charset "ABCDEF0123456789"
-
-# With custom server
-digit create-idgen-template --template-code orgId --template "{ORG}-{SEQ}" --server http://localhost:8080
+digit create-idgen-template --template-code orgId --template "{ORG}-{DATE:yyyyMMdd}-{SEQ}-{RAND}" --server https://digit-lts.digit.org
+digit create-idgen-template --default --template-code "my-custom-template" --server https://digit-lts.digit.org
+digit create-idgen-template --template-code userId --template "USER-{SEQ}-{RAND}" --scope global --start 100 --server https://digit-lts.digit.org
 ```
 
 ---
 
 ### `digit search-idgen-template`
 
-Search for an existing ID generation template by template code.
+Search for an existing ID generation template by code.
 
 **Flags:**
-- `--template-code`: Template code to search for (required)
+- `--template-code`: Template code (required)
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Search ID generation template
-digit search-idgen-template --template-code orgId
-
-# With custom server
-digit search-idgen-template --template-code userId --server http://localhost:8080
+digit search-idgen-template --template-code orgId --server https://digit-lts.digit.org
 ```
 
 ---
 
-### `digit create-document-category`
+### `digit delete-idgen-template`
+
+Delete an existing ID generation template.
+
+**Flags:**
+- `--template-code`: Template code (required)
+- `--version`: Template version to delete (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit delete-idgen-template --template-code orgId --version v2 --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit create-filestore-document-category`
 
 Create a new document category in filestore.
 
 **Flags:**
-- `--type`: Document type (required)
-- `--code`: Document code (required)
-- `--allowed-formats`: Comma-separated list of allowed file formats (required)
-- `--min-size`: Minimum file size in bytes (optional)
-- `--max-size`: Maximum file size in bytes (optional)
-- `--description`: Description of the document category (optional)
-- `--sensitive`: Mark as sensitive document (true/false, default: false)
-- `--active`: Mark as active (true/false, default: true)
+- `--type`: Document type e.g. Identity, Certificate (required)
+- `--code`: Document code e.g. AADHAR, BIRTH_CERT (required)
+- `--allowed-formats`: Comma-separated allowed file formats e.g. "pdf,jpg,jpeg" (required)
+- `--min-size`: Minimum file size e.g. 1KB, 512B (default: 1KB)
+- `--max-size`: Maximum file size e.g. 1MB, 10MB (default: 1MB)
+- `--sensitive`: Mark as sensitive (default: false)
+- `--active`: Mark as active (default: true)
+- `--description`: Description (optional)
 - `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Basic document category
-digit create-document-category --type Identity --code AADHAR --allowed-formats "pdf,jpg,jpeg,xsm" --min-size 1024 --max-size 1024000 --sensitive true --active true
+digit create-filestore-document-category --type Identity --code AADHAR --allowed-formats "pdf,jpg,jpeg,xsm" --min-size 1KB --max-size 1MB --sensitive --active --server https://digit-lts.digit.org
+digit create-filestore-document-category --type Certificate --code BIRTH_CERT --allowed-formats "pdf,jpg" --min-size 512KB --max-size 2MB --description "Birth certificate documents" --server https://digit-lts.digit.org
+```
 
-# Certificate document category
-digit create-document-category --type Certificate --code BIRTH_CERT --allowed-formats "pdf,jpg" --min-size 512 --max-size 2048000 --description "Birth certificate documents"
+---
 
-# With custom server
-digit create-document-category --type Identity --code PAN --allowed-formats "pdf,png" --server http://localhost:8081
+### `digit delete-filestore-document-category`
 
-# Non-sensitive document category
-digit create-document-category --type General --code RECEIPT --allowed-formats "pdf,jpg,png" --min-size 100 --max-size 500000 --sensitive false --active true
+Delete a document category by code.
+
+**Flags:**
+- `--code`: Category code to delete (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit delete-filestore-document-category --code AADHAR --server https://digit-lts.digit.org
 ```
 
 ---
 
 ### `digit create-notification-template`
 
-Create a new notification template with the specified parameters.
+Create a new notification template.
 
 **Flags:**
-- `--file`: Path to YAML file containing all template configuration
-- `--default`: Use default template configuration (requires --template-id)
-- `--template-id`: Template ID for the notification template (required)
-- `--version`: Version of the template (required if not using --file or --default)
-- `--type`: Type of template (EMAIL, SMS, etc.) (required if not using --file or --default)
-- `--subject`: Subject of the template (required if not using --file or --default)
-- `--content`: Content of the template (use either --content or --content-file)
-- `--content-file`: Path to file containing template content (use either --content or --content-file)
-- `--html`: Whether the content is HTML (default: false)
+- `--template-id`: Template ID (required unless `--file`)
+- `--version`: Version e.g. "1.0.0" (required unless `--file` or `--default`)
+- `--type`: Template type — EMAIL, SMS (required unless `--file` or `--default`)
+- `--subject`: Subject (required unless `--file` or `--default`)
+- `--content`: Template content
+- `--content-file`: Path to file with template content
+- `--html`: Content is HTML (default: false)
+- `--default`: Use built-in default EMAIL template (requires `--template-id`)
+- `--file`: Path to YAML configuration file
 - `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
-**YAML Structure:**
+**YAML file structure:**
 ```yaml
-template-id: "email-notification-template"
+template-id: "welcome-email"
 version: "1.0.0"
 type: "EMAIL"
 subject: "Welcome to DIGIT Services"
 content: |
-  <html>
-  <body>
-    <h1>Welcome to DIGIT Services!</h1>
-    <p>Dear {{name}},</p>
-    <p>Thank you for registering with DIGIT Services. Your account has been successfully created.</p>
-    <p>Account Details:</p>
-    <ul>
-      <li>Username: {{username}}</li>
-      <li>Email: {{email}}</li>
-      <li>Registration Date: {{date}}</li>
-    </ul>
-    <p>If you have any questions, please contact our support team.</p>
-    <p>Best regards,<br>DIGIT Team</p>
-  </body>
-  </html>
+  <html><body><h1>Welcome!</h1></body></html>
 html: true
-# Optional: Override server URL
-# server: "http://localhost:8081"
 ```
 
 **Examples:**
 ```bash
-# Using direct content
-digit create-notification-template --template-id "my-template" --version "1.0.0" --type "EMAIL" --subject "Test Subject" --content "Test Content"
-
-# Using default configuration with custom template ID
-digit create-notification-template --default --template-id "my-custom-template"
-
-# Using content from file
-digit create-notification-template --template-id "my-template" --version "1.0.0" --type "EMAIL" --subject "Test Subject" --content-file "./template.html" --html=true
-
-# SMS template
-digit create-notification-template --template-id "sms-template" --version "1.0.0" --type "SMS" --subject "SMS Alert" --content "Your OTP is: {{otp}}"
-
-# With server override
-digit create-notification-template --template-id "my-template" --version "1.0.0" --type "EMAIL" --subject "Test Subject" --content "Test Content" --server http://localhost:8081
-
-# Using YAML file
-digit create-notification-template --file examples/template-config.yaml
+digit create-notification-template --template-id "my-template" --version "1.0.0" --type "EMAIL" --subject "Test" --content "Hello" --server https://digit-lts.digit.org
+digit create-notification-template --default --template-id "welcome-email" --server https://digit-lts.digit.org
+digit create-notification-template --template-id "sms-otp" --version "1.0.0" --type "SMS" --subject "OTP" --content "Your OTP: {{otp}}" --server https://digit-lts.digit.org
+digit create-notification-template --file examples/template-config.yaml --server https://digit-lts.digit.org
 ```
 
 ---
@@ -575,528 +649,462 @@ digit create-notification-template --file examples/template-config.yaml
 Search for notification templates by template ID.
 
 **Flags:**
-- `--template-id`: Template ID to search for (required)
+- `--template-id`: Template ID to search (required)
 - `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Search for notification template
-digit search-notification-template --template-id "my-template"
-
-# With custom server
-digit search-notification-template --template-id "email-template" --server http://localhost:8081
+digit search-notification-template --template-id "my-template" --server https://digit-lts.digit.org
 ```
 
 ---
 
-### `digit create-process`
+### `digit delete-notification-template`
 
-Create a new workflow process with the specified parameters.
+Delete a notification template by ID and version.
 
 **Flags:**
-- `--name`: Name of the workflow process (required)
-- `--code`: Code of the workflow process (required)
-- `--description`: Description of the workflow process (required)
-- `--version`: Version of the workflow process (required)
-- `--sla`: SLA in seconds for the workflow process (required)
+- `--template-id`: Template ID (required)
+- `--version`: Template version (required)
 - `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Basic process creation
-digit create-process --name "Hello" --code "{{GenProcessId}}" --description "A test process for API validation" --version "1.0" --sla 86400
-
-# Custom process with different parameters
-digit create-process --name "MyWorkflow" --code "WF001" --description "Custom workflow" --version "2.0" --sla 3600
-
-# With server override
-digit create-process --name "MyWorkflow" --code "WF001" --description "Custom workflow" --version "2.0" --sla 3600 --server http://localhost:9090
-```
-
----
-
-### `digit search-workflow`
-
-Search for a workflow process definition by process code.
-
-**Flags:**
-- `--code`: Process code to search definition for (required)
-- `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
-
-**Examples:**
-```bash
-# Search workflow by code
-digit search-workflow --code "MY_WORKFLOW_CODE"
-
-# With custom server
-digit search-workflow --code "MY_WORKFLOW_CODE" --server http://localhost:9090
+digit delete-notification-template --template-id user-notify --version v1 --server https://digit-lts.digit.org
 ```
 
 ---
 
 ### `digit create-workflow`
 
-Create a complete workflow (process, states, and actions) from a YAML file definition. This command orchestrates multiple API calls to create an entire workflow system.
+Create a complete workflow (process + states + actions) from a YAML file or using the built-in default. Uses the single composite `POST /workflow/v3/process/definition` API.
 
 **Flags:**
-- `--file`: Path to YAML file containing workflow definition
-- `--default`: Use default workflow configuration (requires --code)
-- `--code`: Process code to use with default configuration (required when using --default)
+- `--file`: Path to YAML workflow definition file
+- `--default`: Use built-in default workflow (requires `--code`)
+- `--code`: Process code for default workflow
 - `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
-**YAML Structure:**
+**YAML structure:**
 ```yaml
 workflow:
   process:
     name: "Application Processing Workflow"
-    code: "{{GenProcessId}}"
-    description: "A complete workflow for application processing"
+    code: "MY_APP_WF"
+    description: "Workflow for application processing"
     version: "1.0"
     sla: 86400
-  
   states:
-    - code: "APPLIED"
-      name: "Application Submitted"
-      isInitial: true
-      isParallel: false
-      isJoin: false
+    - code: "INIT"
+      name: "Init"
+      type: "INITIAL"
       sla: 86400
-    
-    - code: "VERIFY"
-      name: "Under Verification"
-      isInitial: false
-      isParallel: false
-      isJoin: false
+      actions:
+        - code: "APPLY"
+          label: "Apply"
+          nextState: "PENDINGFORASSIGNMENT"
+    - code: "PENDINGFORASSIGNMENT"
+      name: "Pending For Assignment"
+      type: "INTERMEDIATE"
       sla: 43200
-  
-  actions:
-    - name: "Submit for Verification"
-      currentState: "APPLIED"
-      nextState: "VERIFY"
-      roles: ["APPLICANT"]
-      attributeValidation:
-        assigneeCheck: false
+      actions:
+        - code: "ASSIGN"
+          label: "Assign"
+          nextState: "RESOLVED"
+        - code: "REJECT"
+          label: "Reject"
+          nextState: "REJECTED"
+    - code: "RESOLVED"
+      name: "Resolved"
+      type: "TERMINAL_SUCCESS"
+      sla: 0
+      actions: []
+    - code: "REJECTED"
+      name: "Rejected"
+      type: "TERMINAL_FAILURE"
+      sla: 0
+      actions: []
 ```
+
+State `type` values: `INITIAL`, `INTERMEDIATE`, `TERMINAL_SUCCESS`, `TERMINAL_FAILURE`
 
 **Examples:**
 ```bash
-# Create complete workflow from YAML file
-digit create-workflow --file examples/example-workflow.yaml
-
-# Using default configuration with custom code
-digit create-workflow --default --code "MY_CUSTOM_WORKFLOW"
-
-# With server override
-digit create-workflow --file examples/my-workflow.yaml --server http://localhost:9090
+digit create-workflow --file workflow.yaml --server https://digit-lts.digit.org
+digit create-workflow --default --code MY_CUSTOM_WORKFLOW --server https://digit-lts.digit.org
 ```
 
 ---
 
-### `digit create-registry-schema`
+### `digit search-workflow`
 
-Create registry schema from a YAML file definition or using default configuration.
+Get a workflow process definition by process code.
 
 **Flags:**
-- `--file`: Path to YAML file containing registry schema data
-- `--default`: Use default registry schema configuration
-- `--schema-code`: Schema code for default registry schema (default: 'license-registry')
-- `--server`: Server URL (overrides config, default: http://localhost:8085)
-- `--jwt-token`: JWT token for authentication (overrides config)
-
-**YAML Structure:**
-```yaml
-schemaCode: "license-registry"
-definition:
-  $schema: "https://json-schema.org/draft/2020-12/schema"
-  type: "object"
-  additionalProperties: false
-  properties:
-    licenseNumber:
-      type: "string"
-    holderName:
-      type: "string"
-    issueDate:
-      type: "string"
-      format: "date"
-    expiryDate:
-      type: "string"
-      format: "date"
-    status:
-      type: "string"
-      enum: ["ACTIVE", "SUSPENDED", "REVOKED"]
-  required: ["licenseNumber", "holderName", "issueDate", "status"]
-  x-indexes:
-    - name: "idx_license_status"
-      fieldPath: "status"
-      method: "btree"
-    - fieldPath: "holderName"
-      method: "gin"
-```
+- `--code`: Process code (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Create registry schema from YAML file
-digit create-registry-schema --file examples/registry-schema.yaml
-
-# Create registry schema using default configuration with custom schema code
-digit create-registry-schema --default --schema-code "custom-license-registry"
-
-# Create registry schema using default configuration (uses license-registry)
-digit create-registry-schema --default
-
-# With server override
-digit create-registry-schema --file examples/registry-schema.yaml --server http://localhost:8085
-
-# With JWT token
-digit create-registry-schema --file examples/registry-schema.yaml --jwt-token <your-jwt-token>
+digit search-workflow --code MY_WORKFLOW_CODE --server https://digit-lts.digit.org
 ```
 
 ---
 
-### `digit search-registry-schema`
+### `digit delete-workflow`
 
-Search for a registry schema by schema code and optional version.
+Delete a workflow process definition by process code.
 
 **Flags:**
-- `--schema-code`: Schema code to search for (required)
-- `--version`: Version of the schema (optional)
-- `--server`: Server URL (overrides config, default: http://localhost:8085)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--code`: Process code to delete (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Search registry schema by code
-digit search-registry-schema --schema-code "license-registry"
-
-# Search registry schema by code and version
-digit search-registry-schema --schema-code "license-registry" --version "1"
-
-# With server override
-digit search-registry-schema --schema-code "license-registry" --server http://localhost:8085
-
-# With JWT token
-digit search-registry-schema --schema-code "license-registry" --jwt-token <your-jwt-token>
-```
-
----
-
-### `digit delete-registry-schema`
-
-Delete a registry schema by schema code.
-
-**Flags:**
-- `--schema-code`: Schema code to delete (required)
-- `--server`: Server URL (overrides config, default: http://localhost:8085)
-- `--jwt-token`: JWT token for authentication (overrides config)
-
-**Examples:**
-```bash
-# Delete registry schema by code
-digit delete-registry-schema --schema-code "license-registry"
-
-# With server override
-digit delete-registry-schema --schema-code "license-registry" --server http://localhost:8085
-
-# With JWT token
-digit delete-registry-schema --schema-code "license-registry" --jwt-token <your-jwt-token>
+digit delete-workflow --code TRADE_LICENSE_WF --server https://digit-lts.digit.org
 ```
 
 ---
 
 ### `digit create-boundaries`
 
-Create boundaries from a YAML file definition.
+Create boundaries from a YAML file or default configuration.
 
 **Flags:**
-- `--file`: Path to YAML file containing boundary data
+- `--file`: Path to YAML file with boundary data
 - `--default`: Use default boundary configuration
-- `--code-prefix`: Code prefix for default boundaries (default: 'DEFAULT')
+- `--code-prefix`: Code prefix for default boundaries (default: DEFAULT)
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Create boundaries from YAML file
-digit create-boundaries --file examples/boundaries.yaml
+digit create-boundaries --file boundaries.yaml --server https://digit-lts.digit.org
+digit create-boundaries --default --code-prefix "KARNATAKA" --server https://digit-lts.digit.org
+```
 
-# Using default configuration
-digit create-boundaries --default
+---
 
-# Using default configuration with custom prefix
-digit create-boundaries --default --code-prefix "CUSTOM"
+### `digit create-boundary-hierarchy`
 
-# With custom server
-digit create-boundaries --file examples/boundaries.yaml --server http://localhost:8080
+Create a boundary hierarchy from a YAML file or default configuration.
+
+**Flags:**
+- `--file`: Path to YAML file with boundary hierarchy data
+- `--default`: Use default hierarchy configuration
+- `--hierarchy-type`: Hierarchy type for default config (default: state-district-hierarchy)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit create-boundary-hierarchy --file boundary-hierarchy.yaml --server https://digit-lts.digit.org
+digit create-boundary-hierarchy --default --server https://digit-lts.digit.org
+digit create-boundary-hierarchy --default --hierarchy-type "custom-hierarchy" --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit search-boundary-hierarchy`
+
+Search for a boundary hierarchy by hierarchy type.
+
+**Flags:**
+- `--hierarchy-type`: Hierarchy type to search (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit search-boundary-hierarchy --hierarchy-type "state-district-hierarchy" --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit create-boundary-relationships`
+
+Create a boundary relationship using command flags.
+
+**Flags:**
+- `--code`: Boundary code (required)
+- `--hierarchy-type`: Hierarchy type (required)
+- `--boundary-type`: Boundary type (required)
+- `--parent`: Parent boundary code (optional — null if omitted)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit create-boundary-relationships --code "STATE1" --hierarchy-type "state-district-hierarchy" --boundary-type "state" --server https://digit-lts.digit.org
+digit create-boundary-relationships --code "DISTRICT1" --hierarchy-type "state-district-hierarchy" --boundary-type "district" --parent "STATE1" --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit search-boundary-relationships`
+
+Search for boundary relationships.
+
+**Flags:**
+- `--hierarchy-type`: Hierarchy type (required)
+- `--boundary-type`: Boundary type (required)
+- `--codes`: Comma-separated boundary codes (optional)
+- `--include-children`: Include children in response (optional)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit search-boundary-relationships --hierarchy-type "state-district" --boundary-type "state" --server https://digit-lts.digit.org
+digit search-boundary-relationships --hierarchy-type "state-district" --boundary-type "state" --codes "STATE1" --include-children --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit create-registry-schema`
+
+Create a registry schema from a YAML file or default configuration.
+
+**Flags:**
+- `--file`: Path to YAML file with registry schema
+- `--default`: Use default registry schema configuration
+- `--schema-code`: Schema code for default config (default: license-registry)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit create-registry-schema --file examples/registry-schema.yaml --server https://digit-lts.digit.org
+digit create-registry-schema --default --schema-code "custom-license-registry" --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit search-registry-schema`
+
+Search for a registry schema by code and optional version.
+
+**Flags:**
+- `--schema-code`: Schema code (required)
+- `--version`: Schema version (optional)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit search-registry-schema --schema-code "license-registry" --server https://digit-lts.digit.org
+digit search-registry-schema --schema-code "license-registry" --version "1" --server https://digit-lts.digit.org
+```
+
+---
+
+### `digit delete-registry-schema`
+
+Delete a registry schema by code.
+
+**Flags:**
+- `--schema-code`: Schema code (required)
+- `--server`: Server URL (overrides config)
+- `--jwt-token`: JWT token (overrides config)
+
+**Examples:**
+```bash
+digit delete-registry-schema --schema-code "license-registry" --server https://digit-lts.digit.org
 ```
 
 ---
 
 ### `digit create-mdms-schema`
 
-Create a new MDMS schema from a YAML file definition or using default configuration.
+Create a new MDMS schema from a YAML file or default configuration.
 
 **Flags:**
-- `--file`: Path to YAML file containing schema definition
+- `--file`: Path to YAML file with schema definition
 - `--default`: Use default MDMS schema configuration
-- `--code`: Schema code for default configuration (default: 'RAINMAKER_PGR_ServiceDefs')
+- `--code`: Schema code for default config (default: RAINMAKER_PGR_ServiceDefs)
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
-
-**YAML Structure:**
-```yaml
-schema:
-  code: "RAINMAKER_PGR_ServiceDefs"
-  description: "Schema for PGR Service Definitions"
-  definition:
-    $schema: "http://json-schema.org/draft-07/schema#"
-    type: "object"
-    properties:
-      serviceCode:
-        type: "string"
-      name:
-        type: "string"
-      keywords:
-        type: "string"
-      department:
-        type: "string"
-      slaHours:
-        type: "number"
-      order:
-        type: "number"
-      active:
-        type: "boolean"
-      menuPath:
-        type: "string"
-    required: ["serviceCode", "name", "department", "slaHours", "active"]
-    x-unique: ["serviceCode"]
-    x-ref-schema: []
-  isActive: true
-```
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Create MDMS schema from YAML file
-digit create-mdms-schema --file examples/example-schema.yaml
-
-# Create MDMS schema using default configuration
-digit create-mdms-schema --default
-
-# Create MDMS schema using default configuration with custom code
-digit create-mdms-schema --default --code "MY_CUSTOM_SCHEMA"
-
-# With custom server
-digit create-mdms-schema --file examples/my-schema.yaml --server http://localhost:8080
+digit create-mdms-schema --file examples/example-schema.yaml --server https://digit-lts.digit.org
+digit create-mdms-schema --default --server https://digit-lts.digit.org
+digit create-mdms-schema --default --code "MY_CUSTOM_SCHEMA" --server https://digit-lts.digit.org
 ```
 
 ---
 
 ### `digit search-mdms-schema`
 
-Search for an MDMS schema by schema code.
+Search for an MDMS schema by code.
 
 **Flags:**
-- `--code`: Schema code to search for (required)
+- `--code`: Schema code (required)
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Search MDMS schema
-digit search-mdms-schema --code "RAINMAKER-PGR.ServiceDefsns"
-
-# With custom server
-digit search-mdms-schema --code "EMPLOYEE" --server http://localhost:8080
+digit search-mdms-schema --code "RAINMAKER-PGR.ServiceDefs" --server https://digit-lts.digit.org
 ```
 
 ---
 
 ### `digit create-mdms-data`
 
-Create MDMS data entries from a YAML file definition.
+Create MDMS data entries from a YAML file.
 
 **Flags:**
-- `--file`: Path to YAML file containing MDMS data definition (required)
+- `--file`: Path to YAML file with MDMS data (required)
 - `--server`: Server URL (overrides config)
 
 **Examples:**
 ```bash
-# Create MDMS data from YAML file
-digit create-mdms-data --file examples/example-mdms-data.yaml
-
-# With custom server
-digit create-mdms-data --file examples/my-data.yaml --server http://localhost:8080
+digit create-mdms-data --file examples/example-mdms-data.yaml --server https://digit-lts.digit.org
 ```
 
 ---
 
 ### `digit search-mdms-data`
 
-Search MDMS data by schema code and optional unique identifiers.
+Search MDMS data by schema code with optional unique identifier filters.
 
 **Flags:**
-- `--code`: Schema code to search MDMS data for (required)
-- `--unique-identifiers`: Comma-separated unique identifiers to filter data (optional)
+- `--code`: Schema code (required)
+- `--unique-identifiers`: Comma-separated unique identifiers to filter
 - `--server`: Server URL (overrides config)
-- `--jwt-token`: JWT token for authentication (overrides config)
+- `--jwt-token`: JWT token (overrides config)
 
 **Examples:**
 ```bash
-# Search MDMS data by schema code
-digit search-mdms-data --code "common-masters.abcd"
-
-# Search MDMS data with unique identifiers
-digit search-mdms-data --code "common-masters.abcd" --unique-identifiers "Alice1,Alice3"
-
-# With custom server
-digit search-mdms-data --code "EMPLOYEE" --server http://localhost:8080
+digit search-mdms-data --code "common-masters.abcd" --server https://digit-lts.digit.org
+digit search-mdms-data --code "common-masters.abcd" --unique-identifiers "Alice1,Alice3" --server https://digit-lts.digit.org
 ```
+
+---
+
+## API Integration
+
+The CLI integrates with DIGIT v3 services:
+
+| Domain | Endpoint |
+|--------|----------|
+| Account | `POST/GET/DELETE /accounts/v3/tenants` |
+| Workflow | `POST/GET/DELETE /workflow/v3/process/definition` |
+| Access Control | `POST/GET/DELETE /access/v3/rbac/rules/` |
+| Filestore | `POST/DELETE /filestore/v3/files/document-categories` |
+| IDGen | `POST/GET/DELETE /idgen/v3/id/format` |
+| Notification | `POST/GET/DELETE /notification/v3/templates` |
+| Boundaries | `POST/GET /boundary/v3/boundary`, `/boundary/v3/boundary/hierarchy` |
+| MDMS | `POST/GET /mdms-v2/schema/v1`, `/mdms-v2/v2/create` |
+| Registry | `POST/GET/DELETE /registry/v3/schema` |
+| Keycloak Users | `/admin/realms/{realm}/users` |
+
+All protected endpoints use `Authorization: Bearer <token>`, `X-Tenant-ID`, and `X-User-ID` headers derived from the configured JWT token.
 
 ## Project Structure
 
 ```
 DIGIT-CLI/
-├── cmd/                           # Command implementations
-│   ├── root.go                   # Root command and CLI setup
-│   ├── config.go                 # Configuration management commands
-│   ├── configSet.go              # Authentication-based config setting
-│   ├── configShow.go             # Show current configuration
-│   ├── configGetContexts.go      # List available contexts
-│   ├── configUseContext.go       # Switch contexts
-│   ├── createAccount.go          # Account creation command
-│   ├── createUser.go             # User management commands (CRUD + roles)
-│   ├── createTemplate.go         # Template management commands
-│   ├── createWorkflow.go         # Workflow management commands
-│   ├── createIdGenTemplate.go    # ID generation template commands
-│   ├── createDocumentCategory.go # Document category management
-│   └── createmdms.go             # MDMS schema and data commands
-├── pkg/                          # Shared packages
-│   ├── api/                      # API client utilities
-│   ├── auth/                     # Authentication handling
-│   ├── config/                   # Configuration management
-│   └── jwt/                      # JWT token handling
-├── main.go                       # Application entry point
-├── go.mod                        # Go module definition
-├── .goreleaser.yaml              # Release configuration
-├── example-*.yaml                # Example configuration files
-└── README.md                     # This documentation
+├── cmd/
+│   ├── root.go                    # Root command
+│   ├── config.go                  # config subcommands
+│   ├── configSet.go
+│   ├── configShow.go
+│   ├── configGetContexts.go
+│   ├── configUseContext.go
+│   ├── createAccount.go           # create/search/delete-account
+│   ├── createUser.go              # create/search/update/delete-user, reset-password, create/assign-role
+│   ├── createRbacRule.go          # create-rbac-rule
+│   ├── manageRbacRules.go         # list/get/delete/delete-all-rbac-rules
+│   ├── createWorkflow.go          # create/search-workflow, delete-process
+│   ├── createIdGenTemplate.go     # create/search/delete-idgen-template
+│   ├── createDocumentCategory.go  # create/delete-filestore-document-category
+│   ├── createNotificationTemplate.go # create/search/delete-notification-template
+│   ├── createBoundaries.go        # create-boundaries, create/search-boundary-hierarchy, create/search-boundary-relationships
+│   ├── createRegistry.go          # create/search/delete-registry-schema
+│   ├── createmdms.go              # create/search-mdms-schema, create/search-mdms-data
+│   └── build.go                   # build command
+├── pkg/
+│   ├── config/                    # Configuration management
+│   └── jwt/                       # JWT token handling
+├── main.go
+├── go.mod
+├── .goreleaser.yaml
+└── README.md
 ```
-
-## API Integration
-
-The CLI integrates with DIGIT services using the following API endpoints:
-
-- **Account Creation**: `POST /account`
-  - Headers: `Content-Type: application/json`, `X-Client-Id: <client-id>`
-  - Payload: JSON with tenant information
-
-- **User Creation**: Keycloak Admin API
-  - Endpoint: `/admin/realms/{realm}/users`
-  - Headers: `Authorization: Bearer <jwt-token>`, `Content-Type: application/json`
-  - Payload: JSON with user information
-
-- **Template Creation**: `POST /template`
-  - Headers: `Content-Type: application/json`
-  - Payload: JSON with template information
-
-- **Workflow Creation**: `POST /workflow/v3/process`
-  - Headers: `Content-Type: application/json`, `X-Tenant-ID: <tenant-id>`
-  - Payload: JSON with workflow process information
-
-## Development
-
-### Adding New Commands
-
-The CLI is designed to be extensible. To add new commands:
-
-1. Create a new file in the `cmd/` directory (e.g., `cmd/newCommand.go`)
-2. Define your command using the Cobra library
-3. Add the command to the root command in the `init()` function
-4. Follow the existing patterns for configuration and API integration
-
-### Dependencies
-
-- [Cobra](https://github.com/spf13/cobra): CLI framework
-- [Resty](https://github.com/go-resty/resty): HTTP client
-- [YAML v3](https://github.com/go-yaml/yaml): YAML parsing for configuration
 
 ## Configuration File
 
-The CLI stores configuration in `~/.digit/config.yaml`:
+The CLI stores configuration in `~/.digit/config.yaml`. Set it via:
 
-```yaml
-server: http://localhost:8094
+```bash
+digit config set --server https://digit-lts.digit.org --account MYACCOUNT --client-id admin-cli --client-secret mysecret --username user@example.com --password mypassword
 ```
-
-## Error Handling
-
-The CLI provides clear error messages for common issues:
-
-- Missing required flags
-- Network connectivity problems
-- Invalid server URLs
-- Configuration file issues
 
 ## Available Commands Summary
 
 | Command | Description | Key Flags |
 |---------|-------------|-----------|
-| **Configuration** |
-| `config set` | Authenticate and set configuration | `--file` or auth flags |
-| `config show` | Show current configuration | None |
-| `config get-contexts` | List available contexts | `--file` |
-| `config use-context` | Switch to different context | `--file`, context name |
-| **Account Management** |
-| `create-account` | Create new DIGIT account | `--name`, `--email`, `--active` |
-| **User Management** |
-| `create-user` | Create new Keycloak user | `--username`, `--password`, `--email`, `--account` |
-| `reset-password` | Reset user password in Keycloak | `--username`, `--new-password`, `--account` |
-| `delete-user` | Delete user from Keycloak | `--username`, `--account` |
-| `search-user` | Search users in Keycloak | `--account`, `--username` (optional) |
-| `update-user` | Update user information in Keycloak | `--username`, `--account`, update fields |
-| **Role Management** |
-| `create-role` | Create new role in Keycloak | `--role-name`, `--account`, `--description` |
-| `assign-role` | Assign role to user in Keycloak | `--username`, `--role-name`, `--account` |
-| **ID Generation** |
+| **Configuration** | | |
+| `config set` | Authenticate and save configuration | `--server`, auth flags or `--file` |
+| `config show` | Show current configuration | — |
+| `config get-contexts` | List contexts in a config file | `--file` |
+| `config use-context` | Switch to a context | `--file`, context name |
+| **Account Management** | | |
+| `create-account` | Create new tenant account (admin API) | `--name`, `--email` |
+| `search-account` | Search/list tenant accounts | `--name`, `--email`, `--page`, `--size` |
+| `delete-account` | Delete tenant account by ID | `--id` |
+| **User Management** | | |
+| `create-user` | Create Keycloak user | `--username`, `--password`, `--email`, `--account` |
+| `search-user` | Search Keycloak users | `--account`, `--username` |
+| `update-user` | Update Keycloak user | `--username`, `--account`, update fields |
+| `reset-password` | Reset user password | `--username`, `--new-password`, `--account` |
+| `delete-user` | Delete Keycloak user | `--username`, `--account` |
+| **Role Management** | | |
+| `create-role` | Create Keycloak role | `--role-name`, `--account` |
+| `assign-role` | Assign role to user | `--username`, `--role-name`, `--account` |
+| **Access Control** | | |
+| `create-rbac-rule` | Create RBAC/JBAC rule(s) | `--roles`, `--path`, `--method` or `--file` |
+| `list-rbac-rules` | List RBAC rules for tenant | `--role`, `--page`, `--size` |
+| `get-rbac-rule` | Get RBAC rule by ID | `--id` |
+| `delete-rbac-rule` | Delete RBAC rule by ID | `--id` |
+| `delete-all-rbac-rules` | Delete all RBAC rules (destructive) | `--role` |
+| **ID Generation** | | |
 | `create-idgen-template` | Create ID generation template | `--template-code`, `--template` |
 | `search-idgen-template` | Search ID generation template | `--template-code` |
-| **Document Management** |
-| `create-document-category` | Create filestore document category | `--type`, `--code`, `--allowed-formats` |
-| **Template Management** |
+| `delete-idgen-template` | Delete ID generation template | `--template-code`, `--version` |
+| **Document Management** | | |
+| `create-filestore-document-category` | Create filestore document category | `--type`, `--code`, `--allowed-formats` |
+| `delete-filestore-document-category` | Delete document category | `--code` |
+| **Notification Templates** | | |
 | `create-notification-template` | Create notification template | `--template-id`, `--version`, `--type`, `--subject`, `--content` |
 | `search-notification-template` | Search notification templates | `--template-id` |
 | `delete-notification-template` | Delete notification template | `--template-id`, `--version` |
-| **Workflow Management** |
-| `create-process` | Create workflow process | `--name`, `--code`, `--description`, `--version`, `--sla` |
-| `search-workflow` | Search workflow process definition | `--code` |
-| `create-workflow` | Create complete workflow from YAML | `--file` |
-| `delete-process` | Delete workflow process | `--code` |
-| **Boundary Management** |
-| `create-boundaries` | Create boundaries from YAML | `--file` |
-| **Registry Management** |
-| `create-registry-schema` | Create registry schema from YAML | `--file` or `--default`, `--schema-code` |
-| `search-registry-schema` | Search registry schema by code | `--schema-code`, `--version` |
-| `delete-registry-schema` | Delete registry schema by code | `--schema-code` |
-| **MDMS Operations** |
-| `create-mdms-schema` | Create MDMS schema from YAML or default | `--file` or `--default`, `--code` |
-| `search-mdms-schema` | Search MDMS schema by code | `--code` |
-| `create-mdms-data` | Create MDMS data from YAML | `--file` |
-| `search-mdms-data` | Search MDMS data by schema code | `--code`, `--unique-identifiers` |
-| **Utility** |
-| `completion` | Generate shell autocompletion | Shell type |
-| `help` | Help about any command | Command name |
-
-## Future Enhancements
-
-This CLI is designed to be extended with additional commands for:
-
-- **Bulk Operations**: Batch processing for multiple users, roles, or templates
-- **Interactive Mode**: Guided CLI experience with prompts and validation
-- **Template Management**: Update and delete notification templates
-- **Workflow Management**: Update, delete, and list workflow processes
-- **MDMS Management**: Update and delete MDMS schemas and data
-- **Account Management**: Account verification, status checks, and updates
-- **Reporting**: Generate reports on users, roles, workflows, and system usage
-- **Import/Export**: Bulk import/export of configurations and data
-- **Validation**: Pre-flight validation of YAML files and configurations
-- **Monitoring**: Health checks and status monitoring of DIGIT services
+| **Workflow Management** | | |
+| `create-workflow` | Create complete workflow from YAML | `--file` or `--default --code` |
+| `search-workflow` | Get workflow process definition | `--code` |
+| `delete-workflow` | Delete workflow process definition | `--code` |
+| **Boundary Management** | | |
+| `create-boundaries` | Create boundaries from YAML | `--file` or `--default` |
+| `create-boundary-hierarchy` | Create boundary hierarchy | `--file` or `--default` |
+| `search-boundary-hierarchy` | Search boundary hierarchy | `--hierarchy-type` |
+| `create-boundary-relationships` | Create boundary relationship | `--code`, `--hierarchy-type`, `--boundary-type` |
+| `search-boundary-relationships` | Search boundary relationships | `--hierarchy-type`, `--boundary-type` |
+| **Registry Management** | | |
+| `create-registry-schema` | Create registry schema | `--file` or `--default` |
+| `search-registry-schema` | Search registry schema | `--schema-code` |
+| `delete-registry-schema` | Delete registry schema | `--schema-code` |
+| **MDMS Operations** | | |
+| `create-mdms-schema` | Create MDMS schema | `--file` or `--default` |
+| `search-mdms-schema` | Search MDMS schema | `--code` |
+| `create-mdms-data` | Create MDMS data | `--file` |
+| `search-mdms-data` | Search MDMS data | `--code` |
+| **Utility** | | |
+| `completion` | Generate shell autocompletion | shell type |
+| `help` | Help about any command | command name |

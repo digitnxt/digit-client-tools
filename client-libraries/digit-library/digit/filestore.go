@@ -21,7 +21,7 @@ type DocumentCategoryRequest struct {
 
 // CreateDocumentCategory creates a new document category in filestore
 // Returns the raw response body as string and any error encountered
-func CreateDocumentCategory(serverURL, jwtToken, tenantID, categoryType, code string, allowedFormats []string, minSize, maxSize string, isSensitive, isActive bool, description string) (string, error) {
+func CreateDocumentCategory(serverURL, jwtToken, tenantID, userID, categoryType, code string, allowedFormats []string, minSize, maxSize string, isSensitive, isActive bool, description string) (string, error) {
 	// Validate required parameters
 	if serverURL == "" {
 		return "", fmt.Errorf("serverURL cannot be empty")
@@ -57,6 +57,7 @@ func CreateDocumentCategory(serverURL, jwtToken, tenantID, categoryType, code st
 	// Make the API call
 	resp, err := client.R().
 		SetHeader("X-Tenant-ID", tenantID).
+		SetHeader("X-User-ID", userID).
 		SetHeader("Authorization", "Bearer "+jwtToken).
 		SetHeader("Content-Type", "application/json").
 		SetBody(categoryReq).
@@ -76,7 +77,7 @@ func CreateDocumentCategory(serverURL, jwtToken, tenantID, categoryType, code st
 }
 
 // DeleteDocumentCategory deletes a document category by code via DELETE /filestore/v3/files/document-categories/{code}
-func DeleteDocumentCategory(serverURL, jwtToken, tenantID, code string) (string, error) {
+func DeleteDocumentCategory(serverURL, jwtToken, tenantID, userID, code string) (string, error) {
 	if serverURL == "" {
 		return "", fmt.Errorf("serverURL cannot be empty")
 	}
@@ -88,7 +89,8 @@ func DeleteDocumentCategory(serverURL, jwtToken, tenantID, code string) (string,
 	}
 
 	resp, err := resty.New().R().
-		SetHeader("X-Tenant-Id", tenantID).
+		SetHeader("X-Tenant-ID", tenantID).
+		SetHeader("X-User-ID", userID).
 		SetHeader("Authorization", "Bearer "+jwtToken).
 		Delete(serverURL + "/filestore/v3/files/document-categories/" + code)
 

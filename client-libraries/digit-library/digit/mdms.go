@@ -49,7 +49,8 @@ func CreateSchema(serverURL, jwtToken, tenantID, clientID, code, description, de
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-tenant-id", tenantID)
-	req.Header.Set("x-client-id", clientID)
+	req.Header.Set("X-User-ID", clientID)
+	req.Header.Set("X-Client-ID", clientID)
 	if jwtToken != "" {
 		req.Header.Set("Authorization", "Bearer "+jwtToken)
 	}
@@ -113,7 +114,8 @@ func CreateMdmsData(serverURL, jwtToken, tenantID, clientID, mdmsData string) (s
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-tenant-id", tenantID)
-	req.Header.Set("x-client-id", clientID)
+	req.Header.Set("X-User-ID", clientID)
+	req.Header.Set("X-Client-ID", clientID)
 	if jwtToken != "" {
 		req.Header.Set("Authorization", "Bearer "+jwtToken)
 	}
@@ -165,6 +167,7 @@ func SearchSchema(serverURL, jwtToken, tenantID, clientID, schemaCode string) (s
 
 	// Set headers
 	req.Header.Set("X-tenant-ID", tenantID)
+	req.Header.Set("X-User-ID", clientID)
 	req.Header.Set("X-Client-ID", clientID)
 	if jwtToken != "" {
 		req.Header.Set("Authorization", "Bearer "+jwtToken)
@@ -222,7 +225,8 @@ func SearchMdmsData(serverURL, jwtToken, tenantID, clientID, schemaCode, uniqueI
 
 	// Set headers
 	req.Header.Set("X-Tenant-ID", tenantID)
-	req.Header.Set("X-Client-Id", clientID)
+	req.Header.Set("X-User-ID", clientID)
+	req.Header.Set("X-Client-ID", clientID)
 	if jwtToken != "" {
 		req.Header.Set("Authorization", "Bearer "+jwtToken)
 	}

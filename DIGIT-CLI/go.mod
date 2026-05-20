@@ -8,6 +8,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
+replace github.com/digitnxt/digit-client-tools/client-libraries/digit-library => ../client-libraries/digit-library
+
 require (
 	github.com/go-resty/resty/v2 v2.10.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

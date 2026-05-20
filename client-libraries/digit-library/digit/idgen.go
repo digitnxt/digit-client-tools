@@ -58,7 +58,7 @@ func SearchIdGenTemplate(serverURL, jwtToken, clientID, tenantID, templateCode s
 	client := resty.New()
 
 	resp, err := client.R().
-		SetHeader("X-Client-ID", clientID).
+		SetHeader("X-User-ID", clientID).
 		SetHeader("X-Tenant-ID", tenantID).
 		SetHeader("Authorization", "Bearer "+jwtToken).
 		Get(serverURL + "/idgen/v3/template?templateCode=" + templateCode)
@@ -118,7 +118,7 @@ func CreateIdGenTemplate(serverURL, jwtToken, clientID, tenantID, templateCode, 
 
 	// Make the API call
 	resp, err := client.R().
-		SetHeader("X-Client-ID", clientID).
+		SetHeader("X-User-ID", clientID).
 		SetHeader("X-Tenant-ID", tenantID).
 		SetHeader("Authorization", "Bearer "+jwtToken).
 		SetHeader("Content-Type", "application/json").
@@ -163,7 +163,7 @@ func DeleteIdGenTemplate(serverURL, jwtToken, clientID, tenantID, templateCode, 
 
 	// Make the API call
 	resp, err := client.R().
-		SetHeader("X-Client-ID", clientID).
+		SetHeader("X-User-ID", clientID).
 		SetHeader("X-Tenant-ID", tenantID).
 		SetHeader("Authorization", "Bearer "+jwtToken).
 		SetQueryParam("templateCode", templateCode).

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"digit-cli/pkg/config"
+	"digit-cli/pkg/jwt"
 	"github.com/digitnxt/digit-client-tools/client-libraries/digit-library/digit"
 	"github.com/spf13/cobra"
 )
@@ -37,79 +38,207 @@ func printJSON(responseBody string) {
 	fmt.Println(responseBody)
 }
 
-// createAccountCmd represents the create-account command
 var createAccountCmd = &cobra.Command{
 	Use:   "create-account",
-	Short: "Create a new account in DIGIT services",
-	Long: `Initiate account creation via /account/v3/signup.
-The response includes a requestId; use verify-account to confirm the OTP.
+	Short: "Create a new tenant account",
+	Long: `Create a new tenant account via the admin API.
+If --password is omitted, the server generates one and emails it to the tenant.
 
 Examples:
-  digit create-account --name kongnew1 --email test@example.com --password default
-  digit create-account --name kongnew1 --email test@example.com --password mypass --server http://localhost:8094`,
+  digit create-account --name "Nairobi City" --email admin@nairobi.go.ke
+  digit create-account --name "Nairobi City" --email admin@nairobi.go.ke --password Changeme1
+  digit create-account --name "Nairobi City" --email admin@nairobi.go.ke --phone "+254202229000" --city Nairobi
+  digit create-account --name "Nairobi City" --email admin@nairobi.go.ke --server http://localhost:8080`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name, _ := cmd.Flags().GetString("name")
 		email, _ := cmd.Flags().GetString("email")
 		password, _ := cmd.Flags().GetString("password")
+		phone, _ := cmd.Flags().GetString("phone")
+		address, _ := cmd.Flags().GetString("address")
+		city, _ := cmd.Flags().GetString("city")
+		state, _ := cmd.Flags().GetString("state")
+		pincode, _ := cmd.Flags().GetString("pincode")
+		serverURL, _ := cmd.Flags().GetString("server")
+		jwtToken, _ := cmd.Flags().GetString("jwt-token")
 
-		serverURL, err := getServerURL(cmd)
-		if err != nil {
-			return err
+		if serverURL == "" || jwtToken == "" {
+			cfg, err := config.Load()
+			if err != nil {
+				return fmt.Errorf("failed to load config: %w", err)
+			}
+			if serverURL == "" {
+				serverURL = cfg.GetServer()
+				if serverURL == "" {
+					return fmt.Errorf("server URL not configured. Use 'digit config set --server <url>' or provide --server flag")
+				}
+			}
+			if jwtToken == "" {
+				jwtToken = cfg.GetJWTToken()
+				if jwtToken == "" {
+					return fmt.Errorf("JWT token not configured. Use 'digit config set' or provide --jwt-token flag")
+				}
+			}
 		}
 
-		responseBody, err := digit.SignupAccount(serverURL, name, email, password)
+		tenantID, err := jwt.ExtractTenantID(jwtToken)
+		if err != nil {
+			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
+		}
+
+		req := digit.TenantCreateRequest{
+			Name:     name,
+			Email:    email,
+			Password: password,
+			Phone:    phone,
+			Address:  address,
+			City:     city,
+			State:    state,
+			Pincode:  pincode,
+		}
+
+		responseBody, err := digit.CreateTenant(serverURL, jwtToken, tenantID, req)
 		if err != nil {
 			return fmt.Errorf("failed to create account: %w", err)
 		}
 
-		fmt.Println("Account signup response:")
+		fmt.Println("Account created successfully:")
 		printJSON(responseBody)
 		return nil
 	},
 }
 
-// verifyAccountCmd represents the verify-account command
-var verifyAccountCmd = &cobra.Command{
-	Use:   "verify-account",
-	Short: "Verify account signup using OTP",
-	Long: `Confirm account creation via /account/v3/signup/verify using the requestId and OTP received after signup.
+var searchAccountCmd = &cobra.Command{
+	Use:   "search-account",
+	Short: "Search or list tenant accounts",
+	Long: `Search tenant accounts with optional filters on name or email.
 
 Examples:
-  digit verify-account --request-id 6a7ac916-6e49-49de-b129-9630655a37b1 --otp 245332
-  digit verify-account --request-id <id> --otp <otp> --server http://localhost:8094`,
+  digit search-account
+  digit search-account --name "Nairobi"
+  digit search-account --email admin@nairobi.go.ke
+  digit search-account --page 2 --size 10
+  digit search-account --name "Nairobi" --server http://localhost:8080`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		requestID, _ := cmd.Flags().GetString("request-id")
-		otp, _ := cmd.Flags().GetString("otp")
+		name, _ := cmd.Flags().GetString("name")
+		email, _ := cmd.Flags().GetString("email")
+		page, _ := cmd.Flags().GetInt("page")
+		size, _ := cmd.Flags().GetInt("size")
+		serverURL, _ := cmd.Flags().GetString("server")
+		jwtToken, _ := cmd.Flags().GetString("jwt-token")
 
-		serverURL, err := getServerURL(cmd)
-		if err != nil {
-			return err
+		if serverURL == "" || jwtToken == "" {
+			cfg, err := config.Load()
+			if err != nil {
+				return fmt.Errorf("failed to load config: %w", err)
+			}
+			if serverURL == "" {
+				serverURL = cfg.GetServer()
+				if serverURL == "" {
+					return fmt.Errorf("server URL not configured. Use 'digit config set --server <url>' or provide --server flag")
+				}
+			}
+			if jwtToken == "" {
+				jwtToken = cfg.GetJWTToken()
+				if jwtToken == "" {
+					return fmt.Errorf("JWT token not configured. Use 'digit config set' or provide --jwt-token flag")
+				}
+			}
 		}
 
-		responseBody, err := digit.VerifyAccount(serverURL, requestID, otp)
+		tenantID, err := jwt.ExtractTenantID(jwtToken)
 		if err != nil {
-			return fmt.Errorf("failed to verify account: %w", err)
+			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
 		}
 
-		fmt.Println("Account verification response:")
+		responseBody, err := digit.SearchTenants(serverURL, jwtToken, tenantID, name, email, page, size)
+		if err != nil {
+			return fmt.Errorf("failed to search accounts: %w", err)
+		}
+
 		printJSON(responseBody)
+		return nil
+	},
+}
+
+var deleteAccountCmd = &cobra.Command{
+	Use:   "delete-account",
+	Short: "Delete a tenant account by ID",
+	Long: `Permanently delete a tenant account by its ID.
+
+Examples:
+  digit delete-account --id 3fa85f64-5717-4562-b3fc-2c963f66afa6
+  digit delete-account --id 3fa85f64-5717-4562-b3fc-2c963f66afa6 --server http://localhost:8080`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		id, _ := cmd.Flags().GetString("id")
+		serverURL, _ := cmd.Flags().GetString("server")
+		jwtToken, _ := cmd.Flags().GetString("jwt-token")
+
+		if serverURL == "" || jwtToken == "" {
+			cfg, err := config.Load()
+			if err != nil {
+				return fmt.Errorf("failed to load config: %w", err)
+			}
+			if serverURL == "" {
+				serverURL = cfg.GetServer()
+				if serverURL == "" {
+					return fmt.Errorf("server URL not configured. Use 'digit config set --server <url>' or provide --server flag")
+				}
+			}
+			if jwtToken == "" {
+				jwtToken = cfg.GetJWTToken()
+				if jwtToken == "" {
+					return fmt.Errorf("JWT token not configured. Use 'digit config set' or provide --jwt-token flag")
+				}
+			}
+		}
+
+		tenantID, err := jwt.ExtractTenantID(jwtToken)
+		if err != nil {
+			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
+		}
+
+		responseBody, err := digit.DeleteTenant(serverURL, jwtToken, tenantID, id)
+		if err != nil {
+			return fmt.Errorf("failed to delete account: %w", err)
+		}
+
+		if responseBody != "" {
+			printJSON(responseBody)
+		} else {
+			fmt.Println("Account deleted successfully")
+		}
 		return nil
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(createAccountCmd)
-	createAccountCmd.Flags().String("name", "", "Name of the tenant (required)")
-	createAccountCmd.Flags().String("email", "", "Email of the tenant (required)")
-	createAccountCmd.Flags().String("password", "default", "Password for the tenant (default: default)")
+	rootCmd.AddCommand(searchAccountCmd)
+	rootCmd.AddCommand(deleteAccountCmd)
+
+	createAccountCmd.Flags().String("name", "", "Tenant name (required)")
+	createAccountCmd.Flags().String("email", "", "Tenant email (required)")
+	createAccountCmd.Flags().String("password", "", "Password (optional — server generates one if omitted)")
+	createAccountCmd.Flags().String("phone", "", "Phone number (optional)")
+	createAccountCmd.Flags().String("address", "", "Address (optional)")
+	createAccountCmd.Flags().String("city", "", "City (optional)")
+	createAccountCmd.Flags().String("state", "", "State (optional)")
+	createAccountCmd.Flags().String("pincode", "", "Pincode (optional)")
 	createAccountCmd.Flags().String("server", "", "Server URL (overrides config)")
+	createAccountCmd.Flags().String("jwt-token", "", "JWT token (overrides config)")
+
 	createAccountCmd.MarkFlagRequired("name")
 	createAccountCmd.MarkFlagRequired("email")
 
-	rootCmd.AddCommand(verifyAccountCmd)
-	verifyAccountCmd.Flags().String("request-id", "", "Request ID returned from create-account (required)")
-	verifyAccountCmd.Flags().String("otp", "", "OTP received via email (required)")
-	verifyAccountCmd.Flags().String("server", "", "Server URL (overrides config)")
-	verifyAccountCmd.MarkFlagRequired("request-id")
-	verifyAccountCmd.MarkFlagRequired("otp")
+	searchAccountCmd.Flags().String("name", "", "Filter by tenant name (partial match)")
+	searchAccountCmd.Flags().String("email", "", "Filter by tenant email (partial match)")
+	searchAccountCmd.Flags().Int("page", 1, "Page number (1-indexed)")
+	searchAccountCmd.Flags().Int("size", 20, "Number of results per page")
+	searchAccountCmd.Flags().String("server", "", "Server URL (overrides config)")
+	searchAccountCmd.Flags().String("jwt-token", "", "JWT token (overrides config)")
+
+	deleteAccountCmd.Flags().String("id", "", "Tenant account ID to delete (required)")
+	deleteAccountCmd.Flags().String("server", "", "Server URL (overrides config)")
+	deleteAccountCmd.Flags().String("jwt-token", "", "JWT token (overrides config)")
+	deleteAccountCmd.MarkFlagRequired("id")
 }

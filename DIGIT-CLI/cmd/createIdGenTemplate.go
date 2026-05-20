@@ -14,7 +14,7 @@ import (
 // defaultIdGenConfig contains the embedded default IdGen template configuration
 const defaultIdGenConfig = `template-code: "DEFAULT_TEMPLATE_CODE"
 template: "{ORG}-{DATE:yyyyMMdd}-{SEQ}-{RAND}"
-scope: "daily"
+scope: "DAILY"
 start: 1
 padding-length: 4
 padding-char: "0"
@@ -316,7 +316,7 @@ func init() {
 createIdGenTemplateCmd.Flags().Bool("default", false, "Use default IdGen template configuration (requires --template-code)")
 createIdGenTemplateCmd.Flags().StringP("template-code", "", "", "Template code for the ID generation template (required)")
 createIdGenTemplateCmd.Flags().StringP("template", "", "", "Template pattern (e.g., '{ORG}-{DATE:yyyyMMdd}-{SEQ}-{RAND}') (required if not using --default)")
-createIdGenTemplateCmd.Flags().StringP("scope", "", "daily", "Sequence scope (daily, monthly, yearly, global)")
+createIdGenTemplateCmd.Flags().StringP("scope", "", "DAILY", "Sequence scope (DAILY, MONTHLY, YEARLY, GLOBAL)")
 createIdGenTemplateCmd.Flags().StringP("start", "", "1", "Starting number for sequence")
 createIdGenTemplateCmd.Flags().StringP("padding-length", "", "4", "Padding length for sequence numbers")
 createIdGenTemplateCmd.Flags().StringP("padding-char", "", "0", "Padding character for sequence numbers")
