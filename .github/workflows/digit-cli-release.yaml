@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
-          cache-dependency-path: DIGIT-CLI/go.sum
+          cache-dependency-path: digit-cli/go.sum
 
       - name: Extract semver from tag
         id: semver
@@ -39,7 +39,7 @@ jobs:
           distribution: goreleaser
           version: '~> v2'
           args: release --clean
-          workdir: DIGIT-CLI
+          workdir: digit-cli
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_CURRENT_TAG: ${{ steps.semver.outputs.tag }}
