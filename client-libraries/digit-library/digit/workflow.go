@@ -32,7 +32,7 @@ type ProcessDefinitionInput struct {
 	States      []StateInput `json:"states"`
 }
 
-func doRequest(method, url, jwtToken, tenantID string, body []byte) (string, error) {
+func doRequest(method, url, jwtToken, tenantID, userID string, body []byte) (string, error) {
 	var reqBody *bytes.Reader
 	if body != nil {
 		reqBody = bytes.NewReader(body)
@@ -47,6 +47,7 @@ func doRequest(method, url, jwtToken, tenantID string, body []byte) (string, err
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+jwtToken)
 	req.Header.Set("X-Tenant-ID", tenantID)
+	req.Header.Set("X-User-ID", userID)
 
 	resp, err := (&http.Client{}).Do(req)
 	if err != nil {
@@ -65,7 +66,7 @@ func doRequest(method, url, jwtToken, tenantID string, body []byte) (string, err
 }
 
 // CreateProcessDefinition creates a complete workflow process definition in a single call.
-func CreateProcessDefinition(serverURL, jwtToken, tenantID string, input ProcessDefinitionInput) (string, error) {
+func CreateProcessDefinition(serverURL, jwtToken, tenantID, userID string, input ProcessDefinitionInput) (string, error) {
 	if serverURL == "" {
 		return "", fmt.Errorf("server URL is required")
 	}
@@ -79,11 +80,11 @@ func CreateProcessDefinition(serverURL, jwtToken, tenantID string, input Process
 	}
 
 	url := strings.TrimSuffix(serverURL, "/") + "/workflow/v3/process/definition"
-	return doRequest("POST", url, jwtToken, tenantID, bodyBytes)
+	return doRequest("POST", url, jwtToken, tenantID, userID, bodyBytes)
 }
 
 // SearchProcessDefinition retrieves a workflow process definition by code.
-func SearchProcessDefinition(serverURL, jwtToken, tenantID, processCode string) (string, error) {
+func SearchProcessDefinition(serverURL, jwtToken, tenantID, userID, processCode string) (string, error) {
 	if serverURL == "" {
 		return "", fmt.Errorf("server URL is required")
 	}
@@ -95,11 +96,11 @@ func SearchProcessDefinition(serverURL, jwtToken, tenantID, processCode string) 
 	}
 
 	url := strings.TrimSuffix(serverURL, "/") + "/workflow/v3/process/definition/" + processCode
-	return doRequest("GET", url, jwtToken, tenantID, nil)
+	return doRequest("GET", url, jwtToken, tenantID, userID, nil)
 }
 
 // DeleteProcess deletes a workflow process definition by code.
-func DeleteProcess(serverURL, jwtToken, tenantID, code string) (string, error) {
+func DeleteProcess(serverURL, jwtToken, tenantID, userID, code string) (string, error) {
 	if serverURL == "" {
 		return "", fmt.Errorf("server URL is required")
 	}
@@ -111,5 +112,5 @@ func DeleteProcess(serverURL, jwtToken, tenantID, code string) (string, error) {
 	}
 
 	url := strings.TrimSuffix(serverURL, "/") + "/workflow/v3/process/definition/" + code
-	return doRequest("DELETE", url, jwtToken, tenantID, nil)
+	return doRequest("DELETE", url, jwtToken, tenantID, userID, nil)
 }

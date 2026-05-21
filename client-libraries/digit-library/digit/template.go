@@ -19,7 +19,7 @@ type TemplateRequest struct {
 
 // CreateTemplate creates a new notification template
 // Returns the raw response body as string and any error encountered
-func CreateTemplate(serverURL, jwtToken, tenantID, templateID, version, templateType, subject, content string, isHTML bool) (string, error) {
+func CreateTemplate(serverURL, jwtToken, tenantID, userID, templateID, version, templateType, subject, content string, isHTML bool) (string, error) {
 	// Validate required parameters
 	if serverURL == "" {
 		return "", fmt.Errorf("serverURL cannot be empty")
@@ -61,6 +61,7 @@ func CreateTemplate(serverURL, jwtToken, tenantID, templateID, version, template
 		SetHeader("Content-Type", "application/json").
 		SetHeader("Authorization", "Bearer "+jwtToken).
 		SetHeader("X-Tenant-ID", tenantID).
+		SetHeader("X-User-ID", userID).
 		SetBody(templateReq).
 		Post(serverURL + "/notification/v1/template")
 
@@ -74,7 +75,7 @@ func CreateTemplate(serverURL, jwtToken, tenantID, templateID, version, template
 
 // SearchNotificationTemplate searches for notification templates by template ID
 // Returns the raw response body as string and any error encountered
-func SearchNotificationTemplate(serverURL, jwtToken, tenantID, templateID string) (string, error) {
+func SearchNotificationTemplate(serverURL, jwtToken, tenantID, userID, templateID string) (string, error) {
 	// Validate required parameters
 	if serverURL == "" {
 		return "", fmt.Errorf("serverURL cannot be empty")
@@ -92,6 +93,7 @@ func SearchNotificationTemplate(serverURL, jwtToken, tenantID, templateID string
 	// Make the API request
 	resp, err := client.R().
 		SetHeader("X-Tenant-ID", tenantID).
+		SetHeader("X-User-ID", userID).
 		SetHeader("Authorization", "Bearer "+jwtToken).
 		SetQueryParam("templateId", templateID).
 		Get(serverURL + "/notification/v1/template")
@@ -105,7 +107,7 @@ func SearchNotificationTemplate(serverURL, jwtToken, tenantID, templateID string
 }
 // DeleteNotificationTemplate deletes a notification template by templateId and version
 // Returns the raw response body as string and any error encountered
-func DeleteNotificationTemplate(serverURL, jwtToken, tenantID, templateID, version string) (string, error) {
+func DeleteNotificationTemplate(serverURL, jwtToken, tenantID, userID, templateID, version string) (string, error) {
 	// Validate required parameters
 	if serverURL == "" {
 		return "", fmt.Errorf("serverURL cannot be empty")
@@ -126,6 +128,7 @@ func DeleteNotificationTemplate(serverURL, jwtToken, tenantID, templateID, versi
 	// Make the API request
 	resp, err := client.R().
 		SetHeader("X-Tenant-ID", tenantID).
+		SetHeader("X-User-ID", userID).
 		SetHeader("Authorization", "Bearer "+jwtToken).
 		SetQueryParam("templateId", templateID).
 		SetQueryParam("version", version).

@@ -3,7 +3,7 @@ module digit-cli
 go 1.21
 
 require (
-	github.com/digitnxt/digit-client-tools/client-libraries/digit-library v0.1.4
+	github.com/digitnxt/digit-client-tools/client-libraries/digit-library v0.1.5
 	github.com/spf13/cobra v1.8.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -14,5 +14,3 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/net v0.17.0 // indirect
 )
-
-

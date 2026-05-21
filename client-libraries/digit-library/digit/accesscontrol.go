@@ -46,7 +46,7 @@ type RbacRulePayload struct {
 // ============================================================================
 // CREATE RULE
 // ============================================================================
-func CreateRbacRule(serverURL, jwtToken, tenantID string, rule RbacRulePayload) (string, error) {
+func CreateRbacRule(serverURL, jwtToken, tenantID, userID string, rule RbacRulePayload) (string, error) {
 	if serverURL == "" {
 		return "", fmt.Errorf("server URL is required")
 	}
@@ -69,6 +69,7 @@ func CreateRbacRule(serverURL, jwtToken, tenantID string, rule RbacRulePayload) 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+jwtToken)
 	req.Header.Set("X-Tenant-ID", tenantID)
+	req.Header.Set("X-User-ID", userID)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -93,7 +94,7 @@ func CreateRbacRule(serverURL, jwtToken, tenantID string, rule RbacRulePayload) 
 // ============================================================================
 // LIST RULES
 // ============================================================================
-func ListRbacRules(serverURL, jwtToken, tenantID, roleName string, page, size int) (string, error) {
+func ListRbacRules(serverURL, jwtToken, tenantID, userID, roleName string, page, size int) (string, error) {
 	if serverURL == "" {
 		return "", fmt.Errorf("server URL is required")
 	}
@@ -139,7 +140,7 @@ func ListRbacRules(serverURL, jwtToken, tenantID, roleName string, page, size in
 // ============================================================================
 // GET RULE
 // ============================================================================
-func GetRbacRule(serverURL, jwtToken, tenantID, ruleID string) (string, error) {
+func GetRbacRule(serverURL, jwtToken, tenantID, userID, ruleID string) (string, error) {
 	if ruleID == "" {
 		return "", fmt.Errorf("rule ID is required")
 	}
@@ -154,6 +155,7 @@ func GetRbacRule(serverURL, jwtToken, tenantID, ruleID string) (string, error) {
 
 	req.Header.Set("Authorization", "Bearer "+jwtToken)
 	req.Header.Set("X-Tenant-ID", tenantID)
+	req.Header.Set("X-User-ID", userID)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -170,7 +172,7 @@ func GetRbacRule(serverURL, jwtToken, tenantID, ruleID string) (string, error) {
 // ============================================================================
 // DELETE RULE
 // ============================================================================
-func DeleteRbacRule(serverURL, jwtToken, tenantID, ruleID string) error {
+func DeleteRbacRule(serverURL, jwtToken, tenantID, userID, ruleID string) error {
 	if ruleID == "" {
 		return fmt.Errorf("rule ID is required")
 	}
@@ -185,6 +187,7 @@ func DeleteRbacRule(serverURL, jwtToken, tenantID, ruleID string) error {
 
 	req.Header.Set("Authorization", "Bearer "+jwtToken)
 	req.Header.Set("X-Tenant-ID", tenantID)
+	req.Header.Set("X-User-ID", userID)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
