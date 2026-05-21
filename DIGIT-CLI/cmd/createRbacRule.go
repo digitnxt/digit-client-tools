@@ -45,14 +45,14 @@ var crudMethods = []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
 // ============================================================================
 // Helper: resolve server URL, JWT token, and tenant ID
 // ============================================================================
-func resolveServerAndTenant(cmd *cobra.Command) (serverURL, jwtToken, tenantID string, err error) {
+func resolveServerAndTenant(cmd *cobra.Command) (serverURL, jwtToken, tenantID, userID string, err error) {
 	serverURL, _ = cmd.Flags().GetString("server")
 	jwtToken, _ = cmd.Flags().GetString("jwt-token")
 
 	if serverURL == "" || jwtToken == "" {
 		cfg, cfgErr := config.Load()
 		if cfgErr != nil {
-			return "", "", "", fmt.Errorf("failed to load config: %w", cfgErr)
+			return "", "", "", "", fmt.Errorf("failed to load config: %w", cfgErr)
 		}
 
 		if serverURL == "" {
@@ -64,6 +64,10 @@ func resolveServerAndTenant(cmd *cobra.Command) (serverURL, jwtToken, tenantID s
 	}
 
 	tenantID, err = jwt.ExtractTenantID(jwtToken)
+	if err != nil {
+		return
+	}
+	userID, err = jwt.ExtractClientID(jwtToken)
 	return
 }
 
@@ -95,8 +99,8 @@ func parseConstraints(strs []string) ([]digit.Constraint, error) {
 // ============================================================================
 // Helper: send one rule
 // ============================================================================
-func sendRbacRule(serverURL, jwtToken, tenantID string, rule digit.RbacRulePayload) error {
-	responseBody, err := digit.CreateRbacRule(serverURL, jwtToken, tenantID, rule)
+func sendRbacRule(serverURL, jwtToken, tenantID, userID string, rule digit.RbacRulePayload) error {
+	responseBody, err := digit.CreateRbacRule(serverURL, jwtToken, tenantID, userID, rule)
 	if err != nil {
 		return err
 	}
@@ -121,7 +125,7 @@ func autoDescription(roles []string, method, path, effect string) string {
 // ============================================================================
 // MODE 1: flags
 // ============================================================================
-func handleFlagMode(cmd *cobra.Command, serverURL, jwtToken, tenantID string) error {
+func handleFlagMode(cmd *cobra.Command, serverURL, jwtToken, tenantID, userID string) error {
 	rolesStr, _ := cmd.Flags().GetString("roles")
 	method, _ := cmd.Flags().GetString("method")
 	path, _ := cmd.Flags().GetString("path")
@@ -163,7 +167,7 @@ func handleFlagMode(cmd *cobra.Command, serverURL, jwtToken, tenantID string) er
 			Constraints: constraints,
 		}
 
-		if err := sendRbacRule(serverURL, jwtToken, tenantID, rule); err != nil {
+		if err := sendRbacRule(serverURL, jwtToken, tenantID, userID, rule); err != nil {
 			return err
 		}
 	}
@@ -174,7 +178,7 @@ func handleFlagMode(cmd *cobra.Command, serverURL, jwtToken, tenantID string) er
 // ============================================================================
 // MODE 2: YAML
 // ============================================================================
-func handleFileMode(filePath, serverURL, jwtToken, tenantID string) error {
+func handleFileMode(filePath, serverURL, jwtToken, tenantID, userID string) error {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
@@ -203,7 +207,7 @@ func handleFileMode(filePath, serverURL, jwtToken, tenantID string) error {
 				Constraints: r.Constraints,
 			}
 
-			if err := sendRbacRule(serverURL, jwtToken, tenantID, rule); err != nil {
+			if err := sendRbacRule(serverURL, jwtToken, tenantID, userID, rule); err != nil {
 				return err
 			}
 		}
@@ -219,16 +223,16 @@ var createRbacRuleCmd = &cobra.Command{
 	Use:   "create-rbac-rule",
 	Short: "Create RBAC/JBAC rules",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		serverURL, jwtToken, tenantID, err := resolveServerAndTenant(cmd)
+		serverURL, jwtToken, tenantID, userID, err := resolveServerAndTenant(cmd)
 		if err != nil {
 			return err
 		}
 
 		filePath, _ := cmd.Flags().GetString("file")
 		if filePath != "" {
-			return handleFileMode(filePath, serverURL, jwtToken, tenantID)
+			return handleFileMode(filePath, serverURL, jwtToken, tenantID, userID)
 		}
-		return handleFlagMode(cmd, serverURL, jwtToken, tenantID)
+		return handleFlagMode(cmd, serverURL, jwtToken, tenantID, userID)
 	},
 }
 

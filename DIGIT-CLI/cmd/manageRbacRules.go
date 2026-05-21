@@ -30,7 +30,7 @@ Examples:
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Resolve connection details (same helper from createRbacRule.go)
-		serverURL, jwtToken, tenantID, err := resolveServerAndTenant(cmd)
+		serverURL, jwtToken, tenantID, userID, err := resolveServerAndTenant(cmd)
 		if err != nil {
 			return err
 		}
@@ -41,7 +41,7 @@ Examples:
 		size, _ := cmd.Flags().GetInt("size")
 
 		// Call the library function
-		responseBody, err := digit.ListRbacRules(serverURL, jwtToken, tenantID, roleName, page, size)
+		responseBody, err := digit.ListRbacRules(serverURL, jwtToken, tenantID, userID, roleName, page, size)
 		if err != nil {
 			return fmt.Errorf("failed to list RBAC rules: %w", err)
 		}
@@ -81,7 +81,7 @@ Examples:
   digit get-rbac-rule --id 550e8400-e29b-41d4-a716-446655440000`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		serverURL, jwtToken, tenantID, err := resolveServerAndTenant(cmd)
+		serverURL, jwtToken, tenantID, userID, err := resolveServerAndTenant(cmd)
 		if err != nil {
 			return err
 		}
@@ -91,7 +91,7 @@ Examples:
 			return fmt.Errorf("--id flag is required")
 		}
 
-		responseBody, err := digit.GetRbacRule(serverURL, jwtToken, tenantID, ruleID)
+		responseBody, err := digit.GetRbacRule(serverURL, jwtToken, tenantID, userID, ruleID)
 		if err != nil {
 			return fmt.Errorf("failed to get RBAC rule: %w", err)
 		}
@@ -130,7 +130,7 @@ Examples:
   digit delete-rbac-rule --id 550e8400-e29b-41d4-a716-446655440000`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		serverURL, jwtToken, tenantID, err := resolveServerAndTenant(cmd)
+		serverURL, jwtToken, tenantID, userID, err := resolveServerAndTenant(cmd)
 		if err != nil {
 			return err
 		}
@@ -140,7 +140,7 @@ Examples:
 			return fmt.Errorf("--id flag is required")
 		}
 
-		err = digit.DeleteRbacRule(serverURL, jwtToken, tenantID, ruleID)
+		err = digit.DeleteRbacRule(serverURL, jwtToken, tenantID, userID, ruleID)
 		if err != nil {
 			return fmt.Errorf("failed to delete RBAC rule: %w", err)
 		}
@@ -171,7 +171,7 @@ Examples:
   digit delete-all-rbac-rules --role SUPERUSER`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		serverURL, jwtToken, tenantID, err := resolveServerAndTenant(cmd)
+		serverURL, jwtToken, tenantID, userID, err := resolveServerAndTenant(cmd)
 		if err != nil {
 			return err
 		}
@@ -180,7 +180,7 @@ Examples:
 
 		// Step 1: List all rules to get their IDs
 		// We use a large page size to get everything in one call.
-		responseBody, err := digit.ListRbacRules(serverURL, jwtToken, tenantID, roleName, 0, 1000)
+		responseBody, err := digit.ListRbacRules(serverURL, jwtToken, tenantID, userID, roleName, 0, 1000)
 		if err != nil {
 			return fmt.Errorf("failed to list rules: %w", err)
 		}
@@ -207,7 +207,7 @@ Examples:
 		// Step 2: Delete each rule
 		successCount := 0
 		for _, rule := range listResp.Rules {
-			if err := digit.DeleteRbacRule(serverURL, jwtToken, tenantID, rule.ID); err != nil {
+			if err := digit.DeleteRbacRule(serverURL, jwtToken, tenantID, userID, rule.ID); err != nil {
 				fmt.Printf("  ✗ Failed to delete %s (%s): %v\n", rule.ID, rule.Description, err)
 				continue
 			}

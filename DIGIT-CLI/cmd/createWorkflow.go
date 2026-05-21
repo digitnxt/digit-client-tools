@@ -152,8 +152,12 @@ Examples:
 		if err != nil {
 			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
 		}
+		userID, err := jwt.ExtractClientID(jwtToken)
+		if err != nil {
+			return fmt.Errorf("failed to extract user ID from JWT token: %w", err)
+		}
 
-		responseBody, err := digit.SearchProcessDefinition(serverURL, jwtToken, tenantID, processCode)
+		responseBody, err := digit.SearchProcessDefinition(serverURL, jwtToken, tenantID, userID, processCode)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -220,6 +224,10 @@ Examples:
 		if err != nil {
 			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
 		}
+		userID, err := jwt.ExtractClientID(jwtToken)
+		if err != nil {
+			return fmt.Errorf("failed to extract user ID from JWT token: %w", err)
+		}
 
 		var yamlData []byte
 		if useDefault {
@@ -264,7 +272,7 @@ Examples:
 		}
 
 		fmt.Println("Creating workflow...")
-		responseBody, err := digit.CreateProcessDefinition(serverURL, jwtToken, tenantID, input)
+		responseBody, err := digit.CreateProcessDefinition(serverURL, jwtToken, tenantID, userID, input)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -319,8 +327,12 @@ Examples:
 		if err != nil {
 			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
 		}
+		userID, err := jwt.ExtractClientID(jwtToken)
+		if err != nil {
+			return fmt.Errorf("failed to extract user ID from JWT token: %w", err)
+		}
 
-		responseBody, err := digit.DeleteProcess(serverURL, jwtToken, tenantID, code)
+		responseBody, err := digit.DeleteProcess(serverURL, jwtToken, tenantID, userID, code)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}

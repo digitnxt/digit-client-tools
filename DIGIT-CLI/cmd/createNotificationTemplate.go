@@ -222,9 +222,13 @@ Examples:
 		if err != nil {
 			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
 		}
-		
+		userID, err := jwt.ExtractClientID(jwtToken)
+		if err != nil {
+			return fmt.Errorf("failed to extract user ID from JWT token: %w", err)
+		}
+
 		// Call the digit library to create template
-		responseBody, err := digit.CreateTemplate(serverURL, jwtToken, tenantID, templateID, version, templateType, subject, content, isHTML)
+		responseBody, err := digit.CreateTemplate(serverURL, jwtToken, tenantID, userID, templateID, version, templateType, subject, content, isHTML)
 		if err != nil {
 			return fmt.Errorf("failed to create template: %w", err)
 		}
@@ -296,9 +300,13 @@ Examples:
 		if err != nil {
 			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
 		}
-		
+		userID, err := jwt.ExtractClientID(jwtToken)
+		if err != nil {
+			return fmt.Errorf("failed to extract user ID from JWT token: %w", err)
+		}
+
 		// Call the digit library to search template
-		responseBody, err := digit.SearchNotificationTemplate(serverURL, jwtToken, tenantID, templateID)
+		responseBody, err := digit.SearchNotificationTemplate(serverURL, jwtToken, tenantID, userID, templateID)
 		if err != nil {
 			return fmt.Errorf("failed to search notification template: %w", err)
 		}
@@ -376,9 +384,13 @@ Example:
 		if err != nil {
 			return fmt.Errorf("failed to extract tenant ID from JWT token: %w", err)
 		}
+		userID, err := jwt.ExtractClientID(jwtToken)
+		if err != nil {
+			return fmt.Errorf("failed to extract user ID from JWT token: %w", err)
+		}
 
 		// Call the digit library to delete template
-		responseBody, err := digit.DeleteNotificationTemplate(serverURL, jwtToken, tenantID, templateID, version)
+		responseBody, err := digit.DeleteNotificationTemplate(serverURL, jwtToken, tenantID, userID, templateID, version)
 		if err != nil {
 			return fmt.Errorf("failed to delete notification template: %w", err)
 		}
